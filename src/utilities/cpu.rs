@@ -29,7 +29,7 @@ pub struct Stack{
 impl Stack{
     ///Push implementation for stack struct
     ///Panics with stack overflow if stack pointer is already 16
-    fn push(mut self, subroutine_adress: u16)->Result<(), &'static str>{
+    pub fn push(mut self, subroutine_adress: u16)->Result<(), &'static str>{
         if self.sp==15{
             return Err("Stack overflow")
         }
@@ -38,7 +38,7 @@ impl Stack{
         Ok(())
     }
     ///Creates an empty instance of Stack
-    fn new()->Stack{
+    pub fn new()->Stack{
         Stack{
             stack: [0u16;16],
             sp: 0,
@@ -46,7 +46,7 @@ impl Stack{
     }
     ///Pop implementation for stack struct
     ///Panics if tries popping from empty stack
-    fn pop(mut self)->Result<(), &'static str>{
+    pub fn pop(mut self)->Result<(), &'static str>{
         if self.sp==0{
             return Err("Popping from empty stack")
         } 
@@ -83,7 +83,7 @@ todo!("
 */
 
 impl Cpu{
-    fn new()->Cpu{
+    pub fn new()->Cpu{
         Cpu{
             ram: [0u8;4096],
             pc: 512,
