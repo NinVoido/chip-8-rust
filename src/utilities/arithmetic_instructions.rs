@@ -32,5 +32,27 @@ impl crate::utilities::cpu::Cpu{
         }
         self.registers[x as usize] = temp[1];
     }
-    
+    ///8XY5 instruction implementation
+    ///Substracts value of register VY from VX and puts the result into VX
+    fn remove_from(mut self, x: u8, y: u8){
+        if self.registers[x as usize] > self.registers[y as usize] {
+            self.registers[15] = 1
+        } else {
+            self.registers[15] = 0
+        }
+        //IDK how to properly handle this, so i guess I'll just use to_be_bytes
+        self.registers[x as usize] = (self.registers[x as usize] as i16 - self.registers[y as usize] as i16).to_be_bytes()[1];
+    }
+    ///8XY7 instruction implementation
+    ///Substracts value of register VX from VY and puts the result into VX
+    fn remove_from_rev(mut self, x: u8, y: u8){
+      if self.registers[x as usize] > self.registers[y as usize] {
+            self.registers[15] = 1
+      } else {
+        self.registers[15] = 0
+      }
+      //IDK how to properly handle this, so i guess I'll just use to_be_bytes
+      self.registers[x as usize] = (self.registers[y as usize] as i16 - self.registers[x as usize] as   i16).to_be_bytes()[1];
+    }
+    //8XY6
 }

@@ -24,17 +24,17 @@ pub struct Stack{
     ///Stack
     pub stack: [u16;16],
     ///Stack pointer
-    sp: u8,
+    pub sp: u8,
 }
 impl Stack{
     ///Push implementation for stack struct
     ///Panics with stack overflow if stack pointer is already 16
     pub fn push(mut self, subroutine_adress: u16)->Result<(), &'static str>{
-        if self.sp==15{
+        if self.sp==16{
             return Err("Stack overflow")
         }
-        self.sp += 1;
         self.stack[self.sp as usize] = subroutine_adress;
+        self.sp += 1;
         Ok(())
     }
     ///Creates an empty instance of Stack
@@ -55,32 +55,12 @@ impl Stack{
         Ok(())
     }
 }
-/*todo!("Fonts (perhaps initialize them at Cpu::new()?: 
-0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-0x20, 0x60, 0x20, 0x20, 0x70, // 1
-0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
-0xF0, 0x80, 0x80, 0x80, 0xF0, // C
-0xE0, 0x90, 0x90, 0x90, 0xE0, // D
-0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-0xF0, 0x80, 0xF0, 0x80, 0x80  // F");
-`
-todo!("
+/*todo!("
 1) init a CPU (Cpu::new()), load fonts to ram, set default values
 2)Wait for user tio choose a file, settings(Instruction behaviors, clock rate, etc.), press run button
 3)Load ROM into ram
 4)Launch an executing loop
-5)Debug menu, etc");
-
-*/
+5)Debug menu, etc");*/
 
 impl Cpu{
     ///Function creates an empty chip-8 CPU structure
@@ -116,8 +96,13 @@ impl Cpu{
             0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
             0xF0, 0x80, 0xF0, 0x80, 0x80];// F
         for i in 0..=79{
-            chip.ram[i] = fonts[i]
+            chip.ram[i+50] = fonts[i]
         }
         return chip
+    }
+    ///Fetch+execute actions are done in this function
+    pub fn exec(self)->Result<(), &'static str>{
+        let command = (self.ram[self.pc as usize], self.ram[self.pc as usize + 1]);
+        Ok(())
     }
 }

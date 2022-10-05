@@ -73,4 +73,16 @@ impl crate::utilities::cpu::Cpu{
             self.registers[15] = 1
         }
     }
+    ///FX33 instruction implementation
+    ///Takes the value of register VX and converts it to three decimal digits, to store them after
+    ///register I
+    fn bcd(mut self, x: u8){
+        let mut temp = self.registers[x as usize];
+        self.ram[self.i as usize + 2] = temp % 10;
+        temp /= 10;
+        self.ram[self.i as usize + 1] = temp % 10;
+        temp /= 10;
+        self.ram[self.i as usize] = temp;
+    }
+
 }
