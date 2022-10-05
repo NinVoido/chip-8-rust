@@ -105,4 +105,8 @@ impl Cpu{
         let command = (self.ram[self.pc as usize], self.ram[self.pc as usize + 1]);
         Ok(())
     }
+    ///Reset entire Cpu
+    pub fn reset(mut self){
+        self = Cpu::new()
+    }
 }

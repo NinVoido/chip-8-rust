@@ -1,15 +1,16 @@
 [package]
-name = "Chip-8_emu"
+name = "chip-8_emu"
 version = "0.1.0"
 authors = ["NinVoido"]
 edition = "2021"
 [features]
 
 [dependencies]
-egui = "0.18"
-egui-wgpu = "0.18"
-egui-winit = { version = "0.18", default-features = false, features = ["links"] }
-pixels = "0.9.0"
-winit = "0.26"
-winit_input_helper = "0.12"
+egui = "0.19"
+egui-wgpu = "0.19"
+egui-winit = { version = "0.19", default-features = false, features = ["links"] }
+pixels = {path = "../pixels/"}
+winit = "0.27"
+winit_input_helper = "0.13"
 rand = "0.8.5"
+rfd = "0.10"
