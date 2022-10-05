@@ -3,7 +3,6 @@ use egui_wgpu::renderer::{RenderPass, ScreenDescriptor};
 use pixels::{wgpu, PixelsContext};
 use winit::event_loop::EventLoopWindowTarget;
 use winit::window::Window;
-
 pub struct Framework{
     
     egui_ctx: Context,
@@ -21,6 +20,8 @@ struct Gui{
     debug_open: bool,
     ///Load screen
     start_open: bool,
+    ///Picked path to the ROM
+    picked_path: Option<String>,
 }
 
 impl Framework {
@@ -122,7 +123,7 @@ impl Framework {
 impl Gui {
 
     fn new() -> Self {
-        Self { debug_open: false, start_open: true }
+        Self { debug_open: false, start_open: true, picked_path: None }
     }
 
     fn ui(&mut self, ctx: &Context) {
@@ -142,6 +143,28 @@ impl Gui {
             .open(&mut self.start_open)
             .show(ctx, |ui| {
                 ui.label("This is a CHIP-8 emulator.");
-            });
+
+                if ui.button("Open ROM").clicked() {
+                    if let Some(path) = rfd::FileDialog::new().pick_file() {
+                        self.picked_path = Some(path.display().to_string());
+                    }
+                };
+
+                if let Some(picked_path) = &self.picked_path {
+                    ui.horizontal(|ui| {
+                        ui.label("Picked file:");
+                        ui.monospace(picked_path);
+                        
+                        ui.separator();
+
+                        ui.button("Run ROM(Does nothing ATM)");
+                    });
+                }
+
+        });
+
+        
     }
+
+    
 }
