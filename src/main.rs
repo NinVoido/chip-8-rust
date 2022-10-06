@@ -1,22 +1,23 @@
-mod utilities;
 mod gui;
+mod utilities;
 
 use gui::gui_base::Framework;
-use pixels::{Pixels, SurfaceTexture, Error};
-use winit::{event_loop::{EventLoop, ControlFlow},
-            dpi::LogicalSize,
-            window::WindowBuilder,
-            event::Event};
-use winit_input_helper::WinitInputHelper;
+use pixels::{Error, Pixels, SurfaceTexture};
 use utilities::cpu::Cpu;
+use winit::{
+    dpi::LogicalSize,
+    event::Event,
+    event_loop::{ControlFlow, EventLoop},
+    window::WindowBuilder,
+};
+use winit_input_helper::WinitInputHelper;
 
 const WIDTH: u32 = 64;
 const HEIGHT: u32 = 32;
-fn main() -> Result<(), Error>{
-    
+fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
-    
+
     let chip = Cpu::new();
 
     let window = {
@@ -39,7 +40,7 @@ fn main() -> Result<(), Error>{
             window_size.width,
             window_size.height,
             scale_factor,
-            &pixels
+            &pixels,
         );
 
         (pixels, egui_things)
@@ -47,12 +48,11 @@ fn main() -> Result<(), Error>{
 
     event_loop.run(move |event, _, control_flow| {
         if input.update(&event) {
-
             if input.key_pressed(winit::event::VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
             }
-            
+
             if let Some(scale_factor) = input.scale_factor() {
                 egui_things.scale_factor(scale_factor);
             }
@@ -63,17 +63,15 @@ fn main() -> Result<(), Error>{
             }
             window.request_redraw();
         }
-        
+
         match event {
             Event::WindowEvent { event, .. } => {
                 egui_things.handle_event(&event);
-            },
+            }
             Event::RedrawRequested(_) => {
-
                 egui_things.prepare(&window);
 
                 let render_result = pixels.render_with(|encoder, render_target, context| {
-
                     context.scaling_renderer.render(encoder, render_target);
 
                     egui_things.render(encoder, render_target, context);
@@ -84,9 +82,8 @@ fn main() -> Result<(), Error>{
                 if render_result.is_err() {
                     *control_flow = ControlFlow::Exit;
                 }
-            },
+            }
             _ => (),
         }
     });
-
 }

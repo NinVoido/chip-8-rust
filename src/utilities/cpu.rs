@@ -1,15 +1,15 @@
 ///Main CPU struct
 ///
 ///RAM, stack, etc. are stored in this struct as pub fields.
-pub struct Cpu{
+pub struct Cpu {
     ///4Kb RAM accesable by CPU
-    pub ram: [u8;4096],
+    pub ram: [u8; 4096],
     ///Index register
     pub i: u16,
     ///CPU's registers
     ///Worth mentioning that VF (16th register) should never be used in programs,
     ///as it is considered as a flag by some instructions
-    pub registers: [u8;16],
+    pub registers: [u8; 16],
     ///Delay timer, while it's value is above 0, decrements at a rate of 60 Hz
     pub dt: u8,
     ///Sound timer, beeps while decrementing like delay timer
@@ -17,39 +17,39 @@ pub struct Cpu{
     ///Program counter
     pub pc: u16,
     ///Stack
-    pub stack: Stack, 
+    pub stack: Stack,
 }
 ///Stack struct, which contains 16-element max stack and stack pointer
-pub struct Stack{
+pub struct Stack {
     ///Stack
-    pub stack: [u16;16],
+    pub stack: [u16; 16],
     ///Stack pointer
     pub sp: u8,
 }
-impl Stack{
+impl Stack {
     ///Push implementation for stack struct
     ///Panics with stack overflow if stack pointer is already 16
-    pub fn push(mut self, subroutine_adress: u16)->Result<(), &'static str>{
-        if self.sp==16{
-            return Err("Stack overflow")
+    pub fn push(mut self, subroutine_adress: u16) -> Result<(), &'static str> {
+        if self.sp == 16 {
+            return Err("Stack overflow");
         }
         self.stack[self.sp as usize] = subroutine_adress;
         self.sp += 1;
         Ok(())
     }
     ///Creates an empty instance of Stack
-    pub fn new()->Stack{
-        Stack{
-            stack: [0u16;16],
+    pub fn new() -> Stack {
+        Stack {
+            stack: [0u16; 16],
             sp: 0,
         }
     }
     ///Pop implementation for stack struct
     ///Panics if tries popping from empty stack
-    pub fn pop(mut self)->Result<(), &'static str>{
-        if self.sp==0{
-            return Err("Popping from empty stack")
-        } 
+    pub fn pop(mut self) -> Result<(), &'static str> {
+        if self.sp == 0 {
+            return Err("Popping from empty stack");
+        }
         self.stack[self.sp as usize] = 0;
         self.sp -= 1;
         Ok(())
@@ -62,23 +62,22 @@ impl Stack{
 4)Launch an executing loop
 5)Debug menu, etc");*/
 
-impl Cpu{
+impl Cpu {
     ///Function creates an empty chip-8 CPU structure
     ///Fonts are put into RAM
     ///Program counter is set 512 to match the first instruction adress
     ///Everything else is left zero
-    pub fn new()->Cpu{
-
-        let mut chip = Cpu{
-            ram: [0u8;4096],
+    pub fn new() -> Cpu {
+        let mut chip = Cpu {
+            ram: [0u8; 4096],
             pc: 512,
             stack: Stack::new(),
             i: 0,
-            registers: [0u8;16],
+            registers: [0u8; 16],
             dt: 0,
-            st: 0
+            st: 0,
         };
-        let fonts: [u8;80] =   [
+        let fonts: [u8; 80] = [
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
             0x20, 0x60, 0x20, 0x20, 0x70, // 1
             0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -94,19 +93,20 @@ impl Cpu{
             0xF0, 0x80, 0x80, 0x80, 0xF0, // C
             0xE0, 0x90, 0x90, 0x90, 0xE0, // D
             0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-            0xF0, 0x80, 0xF0, 0x80, 0x80];// F
-        for i in 0..=79{
-            chip.ram[i+50] = fonts[i]
+            0xF0, 0x80, 0xF0, 0x80, 0x80,
+        ]; // F
+        for i in 0..=79 {
+            chip.ram[i + 50] = fonts[i]
         }
-        return chip
+        return chip;
     }
     ///Fetch+execute actions are done in this function
-    pub fn exec(self)->Result<(), &'static str>{
+    pub fn exec(self) -> Result<(), &'static str> {
         let command = (self.ram[self.pc as usize], self.ram[self.pc as usize + 1]);
         Ok(())
     }
     ///Reset entire Cpu
-    pub fn reset(mut self){
+    pub fn reset(mut self) {
         self = Cpu::new()
     }
 }

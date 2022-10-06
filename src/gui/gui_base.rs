@@ -4,8 +4,7 @@ use egui_wgpu::renderer::{RenderPass, ScreenDescriptor};
 use pixels::{wgpu, PixelsContext};
 use winit::event_loop::EventLoopWindowTarget;
 use winit::window::Window;
-pub struct Framework{
-    
+pub struct Framework {
     egui_ctx: Context,
     egui_state: egui_winit::State,
     screen_descriptor: ScreenDescriptor,
@@ -16,7 +15,7 @@ pub struct Framework{
     gui: Gui,
 }
 
-struct Gui{
+struct Gui {
     ///Show debug screen or not
     debug_open: bool,
     ///Load screen
@@ -58,11 +57,11 @@ impl Framework {
             gui,
         }
     }
-    
+
     pub fn handle_event(&mut self, event: &winit::event::WindowEvent) {
         self.egui_state.on_event(&self.egui_ctx, event);
     }
-    
+
     pub fn resize(&mut self, width: u32, height: u32) {
         if width > 0 && height > 0 {
             self.screen_descriptor.size_in_pixels = [width, height];
@@ -72,7 +71,7 @@ impl Framework {
     pub fn scale_factor(&mut self, scale_factor: f64) {
         self.screen_descriptor.pixels_per_point = scale_factor as f32;
     }
-    
+
     pub fn get_path(self) -> Option<String> {
         self.gui.picked_path
     }
@@ -101,7 +100,6 @@ impl Framework {
             None,
         );
 
-
         let textures = std::mem::take(&mut self.textures);
         for id in &textures.free {
             self.rpass.free_texture(id);
@@ -109,7 +107,6 @@ impl Framework {
     }
 
     pub fn prepare(&mut self, window: &Window) {
-        
         let raw_input = self.egui_state.take_egui_input(window);
         let output = self.egui_ctx.run(raw_input, |egui_ctx| {
             self.gui.ui(egui_ctx);
@@ -121,14 +118,15 @@ impl Framework {
             .handle_platform_output(window, &self.egui_ctx, output.platform_output);
         self.paint_jobs = self.egui_ctx.tessellate(output.shapes);
     }
-
-
 }
 
 impl Gui {
-
     fn new() -> Self {
-        Self { debug_open: false, start_open: true, picked_path: None }
+        Self {
+            debug_open: false,
+            start_open: true,
+            picked_path: None,
+        }
     }
 
     fn ui(&mut self, ctx: &Context) {
@@ -149,8 +147,7 @@ impl Gui {
                 })
             });
         });
-        
-        
+
         egui::Window::new("CHIP-8 emu, WIP")
             .open(&mut self.start_open)
             .show(ctx, |ui| {
@@ -166,17 +163,12 @@ impl Gui {
                     ui.horizontal(|ui| {
                         ui.label("Picked file:");
                         ui.monospace(picked_path);
-                        
+
                         ui.separator();
 
                         ui.button("Run ROM(Does nothing ATM)");
                     });
                 }
-
-        });
-
-        
+            });
     }
-
-    
 }
