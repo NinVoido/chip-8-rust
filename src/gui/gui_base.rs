@@ -1,3 +1,4 @@
+mod debug_menu;
 use egui::{ClippedPrimitive, Context, TexturesDelta};
 use egui_wgpu::renderer::{RenderPass, ScreenDescriptor};
 use pixels::{wgpu, PixelsContext};
@@ -71,7 +72,10 @@ impl Framework {
     pub fn scale_factor(&mut self, scale_factor: f64) {
         self.screen_descriptor.pixels_per_point = scale_factor as f32;
     }
-
+    
+    pub fn get_path(self) -> Option<String> {
+        self.gui.picked_path
+    }
     pub fn render(
         &mut self,
         encoder: &mut wgpu::CommandEncoder,
@@ -109,6 +113,7 @@ impl Framework {
         let raw_input = self.egui_state.take_egui_input(window);
         let output = self.egui_ctx.run(raw_input, |egui_ctx| {
             self.gui.ui(egui_ctx);
+            self.gui.debug_ui(egui_ctx);
         });
 
         self.textures.append(output.textures_delta);
@@ -132,6 +137,13 @@ impl Gui {
                 ui.menu_button("File", |ui| {
                     if ui.button("Load file").clicked() {
                         self.start_open = true;
+                        ui.close_menu();
+                    }
+                });
+
+                ui.menu_button("Debug", |ui| {
+                    if ui.button("Open menu").clicked() {
+                        self.debug_open = true;
                         ui.close_menu();
                     }
                 })

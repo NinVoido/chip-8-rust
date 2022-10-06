@@ -16,6 +16,8 @@ fn main() -> Result<(), Error>{
     
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
+    
+    let chip = Cpu::new();
 
     let window = {
         let size = LogicalSize::new(WIDTH as f64, HEIGHT as f64);
@@ -61,7 +63,7 @@ fn main() -> Result<(), Error>{
             }
             window.request_redraw();
         }
-
+        
         match event {
             Event::WindowEvent { event, .. } => {
                 egui_things.handle_event(&event);
