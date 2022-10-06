@@ -28,7 +28,7 @@ pub struct Stack {
 }
 impl Stack {
     ///Push implementation for stack struct
-    ///Panics with stack overflow if stack pointer is already 16
+    ///Returns stack overflow if stack pointer is already 16
     pub fn push(mut self, subroutine_adress: u16) -> Result<(), &'static str> {
         if self.sp == 16 {
             return Err("Stack overflow");
@@ -45,7 +45,7 @@ impl Stack {
         }
     }
     ///Pop implementation for stack struct
-    ///Panics if tries popping from empty stack
+    ///Returns an error if tries popping from empty stack
     pub fn pop(mut self) -> Result<(), &'static str> {
         if self.sp == 0 {
             return Err("Popping from empty stack");
