@@ -3,7 +3,7 @@ impl crate::gui::gui_base::Gui {
         egui::Window::new("Debug menu")
             .open(&mut self.debug_open)
             .show(ctx, |ui| {
-                ui.label("Debug window");
+                ui.label("Current executing command:");
             });
     }
 }

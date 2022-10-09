@@ -18,7 +18,7 @@ fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
 
-    let chip = Cpu::new();
+    let mut chip = Cpu::new();
 
     let window = {
         let size = LogicalSize::new(WIDTH as f64, HEIGHT as f64);
@@ -45,7 +45,7 @@ fn main() -> Result<(), Error> {
 
         (pixels, egui_things)
     };
-
+    let mut loop_started = false;
     event_loop.run(move |event, _, control_flow| {
         if input.update(&event) {
             if input.key_pressed(winit::event::VirtualKeyCode::Escape) || input.quit() {
@@ -63,7 +63,19 @@ fn main() -> Result<(), Error> {
             }
             window.request_redraw();
         }
-
+        if let Some(path) = egui_things.rom_started() {
+                chip.load_rom(path).unwrap();
+                egui_things.unload_path();
+                loop_started = true;
+        }
+        if loop_started {
+            chip.execute(&input);
+            println!("i{:X?}, cmd{:X?}, {:X?}, pc:{:X?}" ,chip.i, chip.ram[chip.pc as usize - 2], chip.ram[chip.pc as usize - 1], chip.pc - 2);
+        }
+        if chip.redraw_needed {
+            chip.draw_to_pixels(pixels.get_frame_mut());
+            window.request_redraw();
+        }
         match event {
             Event::WindowEvent { event, .. } => {
                 egui_things.handle_event(&event);

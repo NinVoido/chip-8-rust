@@ -18,6 +18,12 @@ pub struct Cpu {
     pub pc: u16,
     ///Stack
     pub stack: Stack,
+    ///Flag used while rendering, turns true if VF is set to 1 after drawing a sprite or after
+    ///clearing the screen
+    pub redraw_needed: bool,
+    ///Frame buffer of CHIP-8 CPU
+    ///If redraw_needed flag is up contents of this fb are written to main frame provided by pixels
+    pub screen: [[bool; 64];32],
 }
 ///Stack struct, which contains 16-element max stack and stack pointer
 pub struct Stack {
@@ -29,7 +35,7 @@ pub struct Stack {
 impl Stack {
     ///Push implementation for stack struct
     ///Returns stack overflow if stack pointer is already 16
-    pub fn push(mut self, subroutine_adress: u16) -> Result<(), &'static str> {
+    pub fn push(&mut self, subroutine_adress: u16) -> Result<(), &'static str> {
         if self.sp == 16 {
             return Err("Stack overflow");
         }
@@ -46,7 +52,7 @@ impl Stack {
     }
     ///Pop implementation for stack struct
     ///Returns an error if tries popping from empty stack
-    pub fn pop(mut self) -> Result<(), &'static str> {
+    pub fn pop(&mut self) -> Result<(), &'static str> {
         if self.sp == 0 {
             return Err("Popping from empty stack");
         }
@@ -76,6 +82,8 @@ impl Cpu {
             registers: [0u8; 16],
             dt: 0,
             st: 0,
+            redraw_needed: false,
+            screen: [[false; 64] ; 32],
         };
         let fonts: [u8; 80] = [
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -96,14 +104,9 @@ impl Cpu {
             0xF0, 0x80, 0xF0, 0x80, 0x80,
         ]; // F
         for i in 0..=79 {
-            chip.ram[i + 50] = fonts[i]
+            chip.ram[i + 0x50] = fonts[i]
         }
         return chip;
-    }
-    ///Fetch+execute actions are done in this function
-    pub fn exec(self) -> Result<(), &'static str> {
-        let command = (self.ram[self.pc as usize], self.ram[self.pc as usize + 1]);
-        Ok(())
     }
     ///Reset entire Cpu
     pub fn reset(mut self) {

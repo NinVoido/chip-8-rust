@@ -22,6 +22,8 @@ struct Gui {
     start_open: bool,
     ///Picked path to the ROM
     picked_path: Option<String>,
+    ///State of RUN ROM button
+    rom_choosed: bool,
 }
 
 impl Framework {
@@ -72,8 +74,15 @@ impl Framework {
         self.screen_descriptor.pixels_per_point = scale_factor as f32;
     }
 
-    pub fn get_path(self) -> Option<String> {
-        self.gui.picked_path
+    pub fn rom_started(&self) -> Option<String> {
+        if self.gui.rom_choosed {
+            return self.gui.picked_path.clone();
+        }
+        None
+    }
+    pub fn unload_path(&mut self) {
+        self.gui.picked_path = None;
+        self.gui.rom_choosed = false;
     }
     pub fn render(
         &mut self,
@@ -126,6 +135,7 @@ impl Gui {
             debug_open: false,
             start_open: true,
             picked_path: None,
+            rom_choosed: false,
         }
     }
 
@@ -166,7 +176,9 @@ impl Gui {
 
                         ui.separator();
 
-                        ui.button("Run ROM(Does nothing ATM)");
+                        if ui.button("Run ROM(Does nothing ATM)").clicked() {
+                            self.rom_choosed = true;
+                        }
                     });
                 }
             });
