@@ -64,13 +64,20 @@ fn main() -> Result<(), Error> {
             window.request_redraw();
         }
         if let Some(path) = egui_things.rom_started() {
+                chip.reset();
                 chip.load_rom(path).unwrap();
                 egui_things.unload_path();
                 loop_started = true;
         }
         if loop_started {
-            chip.execute(&input);
-            println!("i{:X?}, cmd{:X?}, {:X?}, pc:{:X?}" ,chip.i, chip.ram[chip.pc as usize - 2], chip.ram[chip.pc as usize - 1], chip.pc - 2);
+            if let Some(error) = chip.execute(&input).err(){
+                loop_started = false;
+                let error = format!("Fatal error: {};\nBacktrace:\nIndex: {:X?}\nCommand: {:X?}{:X}", error, chip.i, chip.ram[chip.pc as usize -2], chip.ram[chip.pc  as usize-1]);
+                if error == "Popping from empty stack" {
+                    println!("Stack backtrace:\n{:?}\n{}", chip.stack.stack, chip.stack.sp);
+                }
+                egui_things.throw_error(error);
+            }//println!("i{:X?}, cmd{:X?}, {:X?}, pc:{:X?}" ,chip.i, chip.ram[chip.pc as usize - 2], chip.ram[chip.pc as usize - 1], chip.pc - 2);
         }
         if chip.redraw_needed {
             chip.draw_to_pixels(pixels.get_frame_mut());

@@ -39,7 +39,7 @@ impl Stack {
         if self.sp == 16 {
             return Err("Stack overflow");
         }
-        self.stack[self.sp as usize] = subroutine_adress;
+        self.stack[self.sp as usize - 1] = subroutine_adress;
         self.sp += 1;
         Ok(())
     }
@@ -47,16 +47,16 @@ impl Stack {
     pub fn new() -> Stack {
         Stack {
             stack: [0u16; 16],
-            sp: 0,
+            sp: 1,
         }
     }
     ///Pop implementation for stack struct
     ///Returns an error if tries popping from empty stack
     pub fn pop(&mut self) -> Result<(), &'static str> {
-        if self.sp == 0 {
+        if self.sp == 1 {
             return Err("Popping from empty stack");
         }
-        self.stack[self.sp as usize] = 0;
+        self.stack[self.sp as usize - 1] = 0;
         self.sp -= 1;
         Ok(())
     }
@@ -109,7 +109,7 @@ impl Cpu {
         return chip;
     }
     ///Reset entire Cpu
-    pub fn reset(mut self) {
-        self = Cpu::new()
+    pub fn reset(&mut self) {
+        *self = Cpu::new()
     }
 }

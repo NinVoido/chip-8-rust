@@ -16,8 +16,8 @@ impl crate::utilities::cpu::Cpu {
     ///00EE instruction implementation
     ///Returns from a subroutine by performing a pop on a stack
     pub fn ret(&mut self) -> Result<(), &'static str> {
-        self.pc = self.stack.stack[self.stack.sp as usize - 1];
         self.stack.pop()?;
+        self.pc = self.stack.stack[self.stack.sp as usize - 1];
         Ok(())
     }
     ///3XNN instruction implementation

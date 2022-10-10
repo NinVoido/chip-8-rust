@@ -2,7 +2,7 @@ use winit_input_helper::WinitInputHelper;
 
 use crate::utilities::cpu::Cpu;
 impl Cpu {
-    pub fn execute(&mut self, input: &WinitInputHelper) {
+    pub fn execute(&mut self, input: &WinitInputHelper) -> Result<(), &'static str> {
         
         let instruction =
             ((self.ram[self.pc as usize] as u16) << 8) + self.ram[self.pc as usize + 1] as u16;
@@ -22,13 +22,11 @@ impl Cpu {
         match nb.id {
             0 => match nb.nn {
                 0xE0 => self.cls(),
-                //TODO handle this error
-                0xEE => self.ret().unwrap(),
+                0xEE => self.ret()?,
                 _ => (),
             },
             1 => self.jp(nb.nnn),
-            //TODO Handle this error
-            2 => self.call(nb.nnn).unwrap(),
+            2 => self.call(nb.nnn)?,
             3 => self.se(nb.x, nb.nn),
             4 => self.sne(nb.x, nb.nn),
             5 => self.se_reg(nb.x, nb.y),
@@ -70,6 +68,7 @@ impl Cpu {
             },
             _ => (),
         }
+        Ok(())
     }
 }
 ///Private struct that represent various components of the instruction

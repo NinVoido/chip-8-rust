@@ -1,4 +1,5 @@
 mod debug_menu;
+mod error_menus;
 use egui::{ClippedPrimitive, Context, TexturesDelta};
 use egui_wgpu::renderer::{RenderPass, ScreenDescriptor};
 use pixels::{wgpu, PixelsContext};
@@ -24,6 +25,10 @@ struct Gui {
     picked_path: Option<String>,
     ///State of RUN ROM button
     rom_choosed: bool,
+    ///Error occured or not
+    error_occured: bool,
+    ///Error itself
+    error: Option<String>,
 }
 
 impl Framework {
@@ -84,6 +89,10 @@ impl Framework {
         self.gui.picked_path = None;
         self.gui.rom_choosed = false;
     }
+    pub fn throw_error(&mut self, error: String) {
+        self.gui.error_occured = true;
+        self.gui.error = Some(error)
+    }
     pub fn render(
         &mut self,
         encoder: &mut wgpu::CommandEncoder,
@@ -120,6 +129,7 @@ impl Framework {
         let output = self.egui_ctx.run(raw_input, |egui_ctx| {
             self.gui.ui(egui_ctx);
             self.gui.debug_ui(egui_ctx);
+            self.gui.error_menus(egui_ctx);
         });
 
         self.textures.append(output.textures_delta);
@@ -136,6 +146,8 @@ impl Gui {
             start_open: true,
             picked_path: None,
             rom_choosed: false,
+            error_occured: false,
+            error: None,
         }
     }
 
