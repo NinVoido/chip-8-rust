@@ -1,5 +1,4 @@
-impl crate::utilities::cpu::Cpu {
-    pub fn wip(self) {}
+impl crate::utilities::cpu::Cpu{
     ///1NNN instruction implementation
     ///Jumps to a given address
     pub fn jp(&mut self, address: u16) {

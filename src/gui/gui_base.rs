@@ -5,17 +5,24 @@ use egui_wgpu::renderer::{RenderPass, ScreenDescriptor};
 use pixels::{wgpu, PixelsContext};
 use winit::event_loop::EventLoopWindowTarget;
 use winit::window::Window;
+///Main struct representing EGUI
 pub struct Framework {
+    ///Egui context
     egui_ctx: Context,
+    ///Egui state
     egui_state: egui_winit::State,
+    ///Screen descriptor
     screen_descriptor: ScreenDescriptor,
+    ///Render pass
     rpass: RenderPass,
+    ///Paint jobs
     paint_jobs: Vec<ClippedPrimitive>,
+    ///Textures
     textures: TexturesDelta,
-
+    ///State of GUI itself
     gui: Gui,
 }
-
+///Struct representing UI state
 struct Gui {
     ///Show debug screen or not
     debug_open: bool,
@@ -64,35 +71,40 @@ impl Framework {
             gui,
         }
     }
-
+    ///Passes events from winit to egui
     pub fn handle_event(&mut self, event: &winit::event::WindowEvent) {
         self.egui_state.on_event(&self.egui_ctx, event);
     }
-
+    ///Manages resizing
     pub fn resize(&mut self, width: u32, height: u32) {
         if width > 0 && height > 0 {
             self.screen_descriptor.size_in_pixels = [width, height];
         }
     }
-
+    ///Manages scaling
     pub fn scale_factor(&mut self, scale_factor: f64) {
         self.screen_descriptor.pixels_per_point = scale_factor as f32;
     }
-
+    ///Transports rom path from egui to Main
+    ///Some if path was chosen and run button was pressed
+    ///None if else
     pub fn rom_started(&self) -> Option<String> {
         if self.gui.rom_choosed {
             return self.gui.picked_path.clone();
         }
         None
     }
+    ///Unloads path from gui after ROM was launched
     pub fn unload_path(&mut self) {
         self.gui.picked_path = None;
         self.gui.rom_choosed = false;
     }
+    ///Transports error from main to error gui
     pub fn throw_error(&mut self, error: String) {
         self.gui.error_occured = true;
         self.gui.error = Some(error)
     }
+    ///Manages rendering egui
     pub fn render(
         &mut self,
         encoder: &mut wgpu::CommandEncoder,
@@ -123,7 +135,7 @@ impl Framework {
             self.rpass.free_texture(id);
         }
     }
-
+    ///Prepares egui for rendering
     pub fn prepare(&mut self, window: &Window) {
         let raw_input = self.egui_state.take_egui_input(window);
         let output = self.egui_ctx.run(raw_input, |egui_ctx| {
@@ -140,6 +152,7 @@ impl Framework {
 }
 
 impl Gui {
+    ///Creates a new gui with default states
     fn new() -> Self {
         Self {
             debug_open: false,
@@ -150,7 +163,7 @@ impl Gui {
             error: None,
         }
     }
-
+    ///Creates main UI
     fn ui(&mut self, ctx: &Context) {
         egui::TopBottomPanel::top("menubar_container").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
@@ -188,7 +201,7 @@ impl Gui {
 
                         ui.separator();
 
-                        if ui.button("Run ROM(Does nothing ATM)").clicked() {
+                        if ui.button("Run ROM").clicked() {
                             self.rom_choosed = true;
                         }
                     });

@@ -23,7 +23,7 @@ pub struct Cpu {
     pub redraw_needed: bool,
     ///Frame buffer of CHIP-8 CPU
     ///If redraw_needed flag is up contents of this fb are written to main frame provided by pixels
-    pub screen: [[bool; 64];32],
+    pub screen: [[bool; 64]; 32],
 }
 ///Stack struct, which contains 16-element max stack and stack pointer
 pub struct Stack {
@@ -83,7 +83,7 @@ impl Cpu {
             dt: 0,
             st: 0,
             redraw_needed: false,
-            screen: [[false; 64] ; 32],
+            screen: [[false; 64]; 32],
         };
         let fonts: [u8; 80] = [
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0

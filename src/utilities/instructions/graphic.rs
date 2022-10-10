@@ -8,7 +8,7 @@ impl crate::utilities::cpu::Cpu {
     ///Clears the screen
     pub fn cls(&mut self) {
         for pixel in self.screen.iter_mut() {
-            *pixel = [false;64]
+            *pixel = [false; 64]
         }
         self.redraw_needed = true
     }
@@ -27,9 +27,9 @@ impl crate::utilities::cpu::Cpu {
                 );
                 let prev = self.screen[cords.1 as usize][cords.0 as usize];
                 self.screen[cords.1 as usize][cords.0 as usize] =
-                    (self.screen[cords.1 as usize][cords.0 as usize] as u8
-                        ^ ((sprite[row as usize] >> i & 1))
-                        == 1);
+                    self.screen[cords.1 as usize][cords.0 as usize] as u8
+                        ^ (sprite[row as usize] >> i & 1)
+                        == 1;
                 if prev != self.screen[cords.1 as usize][cords.0 as usize] {
                     self.redraw_needed = true;
                     //If value changed from 1 to 0, pixel was erased, so we change the value of VF
