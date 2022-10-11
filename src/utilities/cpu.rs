@@ -36,7 +36,7 @@ impl Stack {
     ///Push implementation for stack struct
     ///Returns stack overflow if stack pointer is already 16
     pub fn push(&mut self, subroutine_adress: u16) -> Result<(), &'static str> {
-        if self.sp == 16 {
+        if self.sp == 17 {
             return Err("Stack overflow");
         }
         self.stack[self.sp as usize - 1] = subroutine_adress;

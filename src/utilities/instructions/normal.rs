@@ -1,8 +1,8 @@
-impl crate::utilities::cpu::Cpu{
+impl crate::utilities::cpu::Cpu {
     ///1NNN instruction implementation
     ///Jumps to a given address
     pub fn jp(&mut self, address: u16) {
-        self.pc = address - 2
+        self.pc = address
     }
     ///2NNN instruction implementation
     ///Calls a subroutine at a given address

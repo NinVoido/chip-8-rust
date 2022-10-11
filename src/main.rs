@@ -73,14 +73,19 @@ fn main() -> Result<(), Error> {
             if let Some(error) = chip.execute(&input).err() {
                 loop_started = false;
                 let mut err = format!(
-                    "Fatal: {};\nBacktrace:\nIndex: {:X?}\nCommand: {:X?}{:X}\n",
+                    "Fatal: {};\nInfo:\nIndex: {:X?}\nCommand: {:X?}{:X}\nPC:{}\n",
                     error,
                     chip.i,
                     chip.ram[chip.pc as usize - 2],
-                    chip.ram[chip.pc as usize - 1]
+                    chip.ram[chip.pc as usize - 1],
+                    chip.pc
                 );
                 if error == "Popping from empty stack" || error == "Stack overflow" {
-                    err += format!("Stack backtrace:\n{:?}\n{}", chip.stack.stack, chip.stack.sp).as_str();
+                    err += format!(
+                        "Stack info:\n{:?}\n{}",
+                        chip.stack.stack, chip.stack.sp
+                    )
+                    .as_str();
                 }
                 egui_things.throw_error(err.to_string());
             }

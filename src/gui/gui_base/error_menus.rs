@@ -8,7 +8,7 @@ impl crate::gui::gui_base::Gui {
             .show(ctx, |ui| {
                 ui.label("Error occured");
                 if let Some(err) = &self.error {
-                    ui.label(format!("Backtrace:\n{}", err))
+                    ui.label(format!("Error info:\n{}", err))
                 } else {
                     ui.label("Uknown error occured")
                 };
