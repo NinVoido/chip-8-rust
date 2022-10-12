@@ -1,5 +1,3 @@
-use winit_input_helper::WinitInputHelper;
-
 use crate::utilities::cpu::Cpu;
 impl Cpu {
     pub fn execute(

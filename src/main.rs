@@ -55,24 +55,25 @@ fn main() -> Result<(), Error> {
     let (pixelsscr, pixelsscreen) = std::sync::mpsc::channel();
     //Check if redraw redraw_needed
     //let (redrawn, redrawr) = std::sync::mpsc::channel();
-    let cpu_loop = std::thread::spawn(move || {
+    let _ = std::thread::spawn(move || {
         //Check if loop should be s t a r t e d
         let mut error: Option<String> = None;
         loop {
-            dbg!("Im here");
+//            dbg!("Im here");
             let exec_started: (bool, String) = startr.recv().unwrap();
-            dbg!("Now Im here");
+  //          dbg!("Now Im here");
             chip.reset();
-            chip.load_rom(exec_started.1);
+            chip.load_rom(exec_started.1).unwrap();
             loop {
                 let cycle_started = std::time::Instant::now();
-                for programs_executed in 1..=10 {
+                for _ in 1..=10 {
                     let err = chip.execute(None);
                     if let Some(terr) = err.err() {
                         error = Some(format_error(&chip, terr.to_string()));
                         break;
                     }
                 }
+    //            dbg!(FPS- cycle_started.elapsed());
                 std::thread::sleep(FPS - cycle_started.elapsed());
                 errors.send(error.clone()).unwrap();
                 if error.is_some() {
@@ -84,7 +85,7 @@ fn main() -> Result<(), Error> {
                     chip.redraw_needed = false
                 } else {
                     pixelsscr.send(None).unwrap();
-                }
+                } 
             }
             //Clean the error
             error = None;
@@ -115,15 +116,17 @@ fn main() -> Result<(), Error> {
             loop_started = true;
         }
         if loop_started {
-            let err = errorr.recv().unwrap();
-            if let Some(error) = err {
+            let err = errorr.try_recv();
+            if let Ok(Some(error)) = err {
                 egui_things.throw_error(error);
                 loop_started = false;
             }
-        
-        if let Some(screen) = pixelsscreen.recv().unwrap() {
-            draw_to_pixels(screen, pixels.get_frame_mut());
-        }}
+
+            if let Ok(Some(screen)) = pixelsscreen.try_recv() {
+                draw_to_pixels(screen, pixels.get_frame_mut());
+            }
+      //      dbg!("received");
+        }
         match event {
             Event::WindowEvent { event, .. } => {
                 egui_things.handle_event(&event);
