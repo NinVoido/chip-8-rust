@@ -2,7 +2,10 @@ use winit_input_helper::WinitInputHelper;
 
 use crate::utilities::cpu::Cpu;
 impl Cpu {
-    pub fn execute(&mut self, input: &WinitInputHelper) -> Result<(), &'static str> {
+    pub fn execute(
+        &mut self,
+        input: Option<winit::event::VirtualKeyCode>,
+    ) -> Result<(), &'static str> {
         let instruction =
             ((self.ram[self.pc as usize] as u16) << 8) + self.ram[self.pc as usize + 1] as u16;
         let nb = Nibbles {

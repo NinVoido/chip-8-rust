@@ -1,9 +1,8 @@
 mod gui;
 mod utilities;
-
 use gui::gui_base::Framework;
 use pixels::{Error, Pixels, SurfaceTexture};
-use utilities::cpu::Cpu;
+use utilities::{cpu::Cpu, draw_to_pixels::draw_to_pixels};
 use winit::{
     dpi::LogicalSize,
     event::Event,
@@ -14,6 +13,7 @@ use winit_input_helper::WinitInputHelper;
 
 const WIDTH: u32 = 64;
 const HEIGHT: u32 = 32;
+const FPS: std::time::Duration = std::time::Duration::from_millis(16);
 fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
@@ -45,6 +45,52 @@ fn main() -> Result<(), Error> {
 
         (pixels, egui_things)
     };
+    //Channel for transmitting input from winit to Cpu
+    //let (winout, cpuin) = std::sync::mpsc::channel();
+    //Channel for transmitting start info
+    let (starts, startr) = std::sync::mpsc::channel();
+    //Error transmitting from cpu to event loop
+    let (errors, errorr) = std::sync::mpsc::channel();
+    //Transmit frame from chip to pixels
+    let (pixelsscr, pixelsscreen) = std::sync::mpsc::channel();
+    //Check if redraw redraw_needed
+    //let (redrawn, redrawr) = std::sync::mpsc::channel();
+    let cpu_loop = std::thread::spawn(move || {
+        //Check if loop should be s t a r t e d
+        let mut error: Option<String> = None;
+        loop {
+            dbg!("Im here");
+            let exec_started: (bool, String) = startr.recv().unwrap();
+            dbg!("Now Im here");
+            chip.reset();
+            chip.load_rom(exec_started.1);
+            loop {
+                let cycle_started = std::time::Instant::now();
+                for programs_executed in 1..=10 {
+                    let err = chip.execute(None);
+                    if let Some(terr) = err.err() {
+                        error = Some(format_error(&chip, terr.to_string()));
+                        break;
+                    }
+                }
+                std::thread::sleep(FPS - cycle_started.elapsed());
+                errors.send(error.clone()).unwrap();
+                if error.is_some() {
+                    break;
+                }
+
+                if chip.redraw_needed {
+                    pixelsscr.send(Some(chip.screen)).unwrap();
+                    chip.redraw_needed = false
+                } else {
+                    pixelsscr.send(None).unwrap();
+                }
+            }
+            //Clean the error
+            error = None;
+        }
+    });
+    dbg!("Reached the event loop");
     let mut loop_started = false;
     event_loop.run(move |event, _, control_flow| {
         if input.update(&event) {
@@ -64,36 +110,20 @@ fn main() -> Result<(), Error> {
             window.request_redraw();
         }
         if let Some(path) = egui_things.rom_started() {
-            chip.reset();
-            chip.load_rom(path).unwrap();
+            starts.send((true, path)).unwrap();
             egui_things.unload_path();
             loop_started = true;
         }
         if loop_started {
-            if let Some(error) = chip.execute(&input).err() {
+            let err = errorr.recv().unwrap();
+            if let Some(error) = err {
+                egui_things.throw_error(error);
                 loop_started = false;
-                let mut err = format!(
-                    "Fatal: {};\nInfo:\nIndex: {:X?}\nCommand: {:X?}{:X}\nPC:{}\n",
-                    error,
-                    chip.i,
-                    chip.ram[chip.pc as usize - 2],
-                    chip.ram[chip.pc as usize - 1],
-                    chip.pc
-                );
-                if error == "Popping from empty stack" || error == "Stack overflow" {
-                    err += format!(
-                        "Stack info:\n{:?}\n{}",
-                        chip.stack.stack, chip.stack.sp
-                    )
-                    .as_str();
-                }
-                egui_things.throw_error(err.to_string());
             }
-        }
-        if chip.redraw_needed {
-            chip.draw_to_pixels(pixels.get_frame_mut());
-            window.request_redraw();
-        }
+        
+        if let Some(screen) = pixelsscreen.recv().unwrap() {
+            draw_to_pixels(screen, pixels.get_frame_mut());
+        }}
         match event {
             Event::WindowEvent { event, .. } => {
                 egui_things.handle_event(&event);
@@ -116,4 +146,19 @@ fn main() -> Result<(), Error> {
             _ => (),
         }
     });
+}
+
+fn format_error(chip: &Cpu, error: String) -> String {
+    let mut err = format!(
+        "Fatal: {};\nInfo:\nIndex: {:X?}\nCommand: {:X?}{:X}\nPC:{}\n",
+        error,
+        chip.i,
+        chip.ram[chip.pc as usize - 2],
+        chip.ram[chip.pc as usize - 1],
+        chip.pc
+    );
+    if error == "Popping from empty stack" || error == "Stack overflow" {
+        err += format!("Stack info:\n{:?}\n{}", chip.stack.stack, chip.stack.sp).as_str();
+    }
+    err
 }
