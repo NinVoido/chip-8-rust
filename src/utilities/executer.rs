@@ -91,3 +91,9 @@ struct Nibbles {
     ///(instruction & 0xf000) >> 12
     id: u8,
 }
+
+pub enum CpuState {
+    Idle,
+    Exec,
+    Debg,
+}

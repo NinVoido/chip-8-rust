@@ -26,6 +26,7 @@ pub struct Cpu {
     pub screen: [[bool; 64]; 32],
 }
 ///Stack struct, which contains 16-element max stack and stack pointer
+#[derive(Copy, Clone)]
 pub struct Stack {
     ///Stack
     pub stack: [u16; 16],

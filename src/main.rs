@@ -5,7 +5,7 @@ use std::time::Instant;
 
 use gui::gui_base::Framework;
 use pixels::{Error, Pixels, SurfaceTexture};
-use utilities::cpu::Cpu;
+use utilities::{cpu::Cpu, executer::CpuState};
 use winit::{
     dpi::LogicalSize,
     event::Event,
@@ -48,7 +48,8 @@ fn main() -> Result<(), Error> {
 
         (pixels, egui_things)
     };
-    let mut loop_started = false;
+    let mut state = CpuState::Idle;
+    let mut next_step = false;
     event_loop.run(move |event, _, control_flow| {
         control_flow.set_poll();
         let iter_started = Instant::now();
@@ -57,6 +58,14 @@ fn main() -> Result<(), Error> {
             if input.key_pressed(winit::event::VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
                 return;
+            }
+
+            if input.key_pressed(winit::event::VirtualKeyCode::Back) {
+                state = CpuState::Debg;
+            }
+
+            if input.key_pressed(winit::event::VirtualKeyCode::Right) {
+                next_step = true
             }
 
             if let Some(scale_factor) = input.scale_factor() {
@@ -73,30 +82,43 @@ fn main() -> Result<(), Error> {
             chip.reset();
             chip.load_rom(path).unwrap();
             egui_things.unload_path();
-            loop_started = true;
+            state = CpuState::Exec;
         }
-        if loop_started {
-            for _ in 1..=10 {
-                if let Err(error) = chip.execute(&input) {
-                    loop_started = false;
-                    let mut err = format!(
-                        "Fatal: {};\nInfo:\nIndex: {:X?}\nCommand: {:X?}{:X}\nPC:{}\n",
-                        error,
-                        chip.i,
-                        chip.ram[chip.pc as usize - 2],
-                        chip.ram[chip.pc as usize - 1],
-                        chip.pc
-                    );
-                    if error == "Popping from empty stack" || error == "Stack overflow" {
-                        err += format!("Stack info:\n{:?}\n{}", chip.stack.stack, chip.stack.sp)
-                            .as_str();
+        match state {
+            CpuState::Idle => (),
+            CpuState::Exec => {
+                for _ in 1..=10 {
+                    if let Err(error) = chip.execute(&input) {
+                        state = CpuState::Idle;
+                        let mut err = format!(
+                            "Fatal: {};\nInfo:\nIndex: {:X?}\nCommand: {:X?}{:X}\nPC:{}\n",
+                            error,
+                            chip.i,
+                            chip.ram[chip.pc as usize - 2],
+                            chip.ram[chip.pc as usize - 1],
+                            chip.pc
+                        );
+                        if error == "Popping from empty stack" || error == "Stack overflow" {
+                            err +=
+                                format!("Stack info:\n{:?}\n{}", chip.stack.stack, chip.stack.sp)
+                                    .as_str();
+                        }
+                        egui_things.throw_error(err.to_string());
                     }
-                    egui_things.throw_error(err.to_string());
                 }
-                
             }
-        
+            CpuState::Debg => {
+                if next_step {
+                    if let Some(regs) = egui_things.get_regs(){
+                        chip.registers = regs
+                    }
+                    chip.execute(&input).unwrap();
+                    egui_things.debug_send(&chip);
+                    next_step = false
+                }
+            }
         }
+
         if chip.redraw_needed {
             chip.draw_to_pixels(pixels.get_frame_mut());
             redraw = true;
@@ -126,8 +148,11 @@ fn main() -> Result<(), Error> {
                     *control_flow = ControlFlow::Exit;
                 }
                 let time = iter_started.elapsed();
-                std::thread::sleep( if FPS < time { std::time::Duration::from_secs(0)} else { FPS - time });
-                dbg!(iter_started.elapsed());
+                std::thread::sleep(if FPS < time {
+                    std::time::Duration::from_secs(0)
+                } else {
+                    FPS - time
+                });
             }
             _ => (),
         }

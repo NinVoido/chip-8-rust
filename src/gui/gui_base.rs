@@ -5,6 +5,8 @@ use egui_wgpu::renderer::{RenderPass, ScreenDescriptor};
 use pixels::{wgpu, PixelsContext};
 use winit::event_loop::EventLoopWindowTarget;
 use winit::window::Window;
+
+use crate::utilities::cpu::Cpu;
 ///Main struct representing EGUI
 pub struct Framework {
     ///Egui context
@@ -36,6 +38,21 @@ struct Gui {
     error_occured: bool,
     ///Error itself
     error: Option<String>,
+    ///Information about program
+    debug_info: Option<DebugInfo>,
+    ///Register viewer
+    regs_open: bool,
+    ///Program viewer
+    ram_open: bool,
+    ///Register changed flag
+    regs_changed: bool,
+}
+
+struct DebugInfo {
+    registers: [u8; 16],
+    pc: u16,
+    stack: crate::utilities::cpu::Stack,
+    cmd: (u8, u8)
 }
 
 impl Framework {
@@ -99,10 +116,31 @@ impl Framework {
         self.gui.picked_path = None;
         self.gui.rom_choosed = false;
     }
+    ///Get new registers from GUI
+    pub fn get_regs(&mut self) -> Option<[u8;16]>{
+        if self.gui.regs_changed {
+            if let Some(dbginfo) = &self.gui.debug_info {
+                Some(dbginfo.registers)
+            } else {
+                None
+            }
+        } else {
+            None 
+        }
+    }
     ///Transports error from main to error gui
     pub fn throw_error(&mut self, error: String) {
         self.gui.error_occured = true;
         self.gui.error = Some(error)
+    }
+    ///Gives debug info to the gui
+    pub fn debug_send(&mut self, chip: &Cpu) {
+        self.gui.debug_info = Some(DebugInfo {
+            registers: chip.registers,
+            stack: chip.stack,
+            pc: chip.pc,
+            cmd: (chip.ram[chip.pc as usize], chip.ram[chip.pc as usize +2]),
+        })
     }
     ///Manages rendering egui
     pub fn render(
@@ -161,6 +199,10 @@ impl Gui {
             rom_choosed: false,
             error_occured: false,
             error: None,
+            debug_info: None,
+            ram_open: false,
+            regs_open: false,
+            regs_changed: false,
         }
     }
     ///Creates main UI

@@ -66,8 +66,8 @@ impl crate::utilities::cpu::Cpu {
     }
     ///BNNN instruction implementation
     ///Jump to location NNN + V0
-    pub fn jp_with(&mut self, nnn: u16){
-        self.pc = nnn+self.registers[0] as u16
+    pub fn jp_with(&mut self, nnn: u16) {
+        self.pc = nnn + self.registers[0] as u16
     }
     ///FX1E instruction implementation
     ///Adds value of register VX to index register
@@ -92,15 +92,15 @@ impl crate::utilities::cpu::Cpu {
     }
     ///FX55 instruction implementation
     ///Stores registers V0 through Vx into memory from I
-    pub fn ld_i_vx(&mut self, x: u8){
-        for j in 0..x{
-            self.ram[(self.i + j as  u16) as usize] = self.registers[j as usize]
+    pub fn ld_i_vx(&mut self, x: u8) {
+        for j in 0..x {
+            self.ram[(self.i + j as u16) as usize] = self.registers[j as usize]
         }
     }
     ///FX65 instruction implementation
     ///Read registers V0 through VX from memory starting at I
-    pub fn ld_vx_i(&mut self, x: u8){
-        for j in 0..x{
+    pub fn ld_vx_i(&mut self, x: u8) {
+        for j in 0..x {
             self.registers[j as usize] = self.ram[(self.i + j as u16) as usize]
         }
     }

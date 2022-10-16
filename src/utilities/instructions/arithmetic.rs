@@ -68,14 +68,14 @@ impl crate::utilities::cpu::Cpu {
         };
         self.registers[x as usize] >>= 1;
     }
-        ///8XYE
-      ///If most-significant bit of Vx is 1, VF is set to 1, otherwise 0. Then Vx<<=1
-     pub fn shl(&mut self, x: u8) {
-          if (self.registers[x as usize] >> 7) == 1 {
-              self.registers[15] = 1
-          } else {
-              self.registers[15] = 0
-          };
-          self.registers[x as usize] <<= 1;
-      }
+    ///8XYE
+    ///If most-significant bit of Vx is 1, VF is set to 1, otherwise 0. Then Vx<<=1
+    pub fn shl(&mut self, x: u8) {
+        if (self.registers[x as usize] >> 7) == 1 {
+            self.registers[15] = 1
+        } else {
+            self.registers[15] = 0
+        };
+        self.registers[x as usize] <<= 1;
+    }
 }
