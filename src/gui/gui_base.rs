@@ -42,17 +42,21 @@ struct Gui {
     debug_info: Option<DebugInfo>,
     ///Register viewer
     regs_open: bool,
+    ///Stack viewer
+    stack_open: bool,
     ///Program viewer
     ram_open: bool,
     ///Register changed flag
     regs_changed: bool,
+    ///If program is started in debugging mode
+    debug_start: bool,
 }
 
 struct DebugInfo {
     registers: [u8; 16],
     pc: u16,
     stack: crate::utilities::cpu::Stack,
-    cmd: (u8, u8)
+    cmd: (u8, u8),
 }
 
 impl Framework {
@@ -105,9 +109,13 @@ impl Framework {
     ///Transports rom path from egui to Main
     ///Some if path was chosen and run button was pressed
     ///None if else
-    pub fn rom_started(&self) -> Option<String> {
-        if self.gui.rom_choosed {
-            return self.gui.picked_path.clone();
+    pub fn rom_started(&self) -> Option<(bool, String)> {
+        if let Some(path) = &self.gui.picked_path {
+            if self.gui.debug_start {
+                return Some((true, path.clone()));
+            } else if self.gui.rom_choosed {
+                return Some((false, path.clone()));
+            }
         }
         None
     }
@@ -115,9 +123,10 @@ impl Framework {
     pub fn unload_path(&mut self) {
         self.gui.picked_path = None;
         self.gui.rom_choosed = false;
+        self.gui.debug_start = false;
     }
     ///Get new registers from GUI
-    pub fn get_regs(&mut self) -> Option<[u8;16]>{
+    pub fn get_regs(&mut self) -> Option<[u8; 16]> {
         if self.gui.regs_changed {
             if let Some(dbginfo) = &self.gui.debug_info {
                 Some(dbginfo.registers)
@@ -125,7 +134,7 @@ impl Framework {
                 None
             }
         } else {
-            None 
+            None
         }
     }
     ///Transports error from main to error gui
@@ -139,8 +148,12 @@ impl Framework {
             registers: chip.registers,
             stack: chip.stack,
             pc: chip.pc,
-            cmd: (chip.ram[chip.pc as usize], chip.ram[chip.pc as usize +2]),
+            cmd: (chip.ram[chip.pc as usize], chip.ram[chip.pc as usize + 1]),
         })
+    }
+    ///Tells egui to open debug menu
+    pub fn open_debug(&mut self) {
+        self.gui.debug_open = true
     }
     ///Manages rendering egui
     pub fn render(
@@ -203,6 +216,8 @@ impl Gui {
             ram_open: false,
             regs_open: false,
             regs_changed: false,
+            stack_open: false,
+            debug_start: false,
         }
     }
     ///Creates main UI
@@ -245,6 +260,12 @@ impl Gui {
 
                         if ui.button("Run ROM").clicked() {
                             self.rom_choosed = true;
+                        }
+
+                        ui.separator();
+
+                        if ui.button("Debug ROM").clicked() {
+                            self.debug_start = true
                         }
                     });
                 }

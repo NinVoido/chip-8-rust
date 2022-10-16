@@ -37,10 +37,10 @@ impl Stack {
     ///Push implementation for stack struct
     ///Returns stack overflow if stack pointer is already 16
     pub fn push(&mut self, subroutine_adress: u16) -> Result<(), &'static str> {
-        if self.sp == 17 {
+        if self.sp == 16 {
             return Err("Stack overflow");
         }
-        self.stack[self.sp as usize - 1] = subroutine_adress;
+        self.stack[self.sp as usize] = subroutine_adress;
         self.sp += 1;
         Ok(())
     }
@@ -48,17 +48,17 @@ impl Stack {
     pub fn new() -> Stack {
         Stack {
             stack: [0u16; 16],
-            sp: 1,
+            sp: 0,
         }
     }
     ///Pop implementation for stack struct
     ///Returns an error if tries popping from empty stack
     pub fn pop(&mut self) -> Result<(), &'static str> {
-        if self.sp == 1 {
+        if self.sp == 0 {
             return Err("Popping from empty stack");
         }
-        self.stack[self.sp as usize - 1] = 0;
         self.sp -= 1;
+        self.stack[self.sp as usize] = 0;
         Ok(())
     }
 }

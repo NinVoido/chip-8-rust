@@ -62,6 +62,8 @@ fn main() -> Result<(), Error> {
 
             if input.key_pressed(winit::event::VirtualKeyCode::Back) {
                 state = CpuState::Debg;
+                egui_things.open_debug();
+                egui_things.debug_send(&chip);
             }
 
             if input.key_pressed(winit::event::VirtualKeyCode::Right) {
@@ -78,11 +80,17 @@ fn main() -> Result<(), Error> {
             }
             redraw = true;
         }
-        if let Some(path) = egui_things.rom_started() {
+        if let Some((mode, path)) = egui_things.rom_started() {
             chip.reset();
             chip.load_rom(path).unwrap();
             egui_things.unload_path();
-            state = CpuState::Exec;
+            if mode {
+                state = CpuState::Debg;
+                egui_things.open_debug();
+                egui_things.debug_send(&chip);
+            } else {
+                state = CpuState::Exec;
+            }
         }
         match state {
             CpuState::Idle => (),
@@ -90,7 +98,7 @@ fn main() -> Result<(), Error> {
                 for _ in 1..=10 {
                     if let Err(error) = chip.execute(&input) {
                         state = CpuState::Idle;
-                        let mut err = format!(
+                        let err = format!(
                             "Fatal: {};\nInfo:\nIndex: {:X?}\nCommand: {:X?}{:X}\nPC:{}\n",
                             error,
                             chip.i,
@@ -98,21 +106,21 @@ fn main() -> Result<(), Error> {
                             chip.ram[chip.pc as usize - 1],
                             chip.pc
                         );
-                        if error == "Popping from empty stack" || error == "Stack overflow" {
-                            err +=
-                                format!("Stack info:\n{:?}\n{}", chip.stack.stack, chip.stack.sp)
-                                    .as_str();
-                        }
-                        egui_things.throw_error(err.to_string());
+                        egui_things.debug_send(&chip);
+                        egui_things.throw_error(err);
                     }
                 }
             }
             CpuState::Debg => {
                 if next_step {
-                    if let Some(regs) = egui_things.get_regs(){
+                    if let Some(regs) = egui_things.get_regs() {
                         chip.registers = regs
                     }
-                    chip.execute(&input).unwrap();
+                    if let Err(error) = chip.execute(&input) {
+                        state = CpuState::Idle;
+                        let err = format!("Fatal: {}", error);
+                        egui_things.throw_error(err)
+                    }
                     egui_things.debug_send(&chip);
                     next_step = false
                 }
@@ -124,8 +132,6 @@ fn main() -> Result<(), Error> {
             redraw = true;
         }
 
-        //*control_flow = ControlFlow::WaitUntil(
-        //);
         if redraw {
             window.request_redraw()
         }

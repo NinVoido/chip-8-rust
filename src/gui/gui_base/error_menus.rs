@@ -12,8 +12,10 @@ impl crate::gui::gui_base::Gui {
                 } else {
                     ui.label("Uknown error occured")
                 };
-                if ui.button("Open debug for maitenance").clicked() {
-                    self.debug_open = true
+                if !self.debug_open {
+                    if ui.button("Open debug for maitenance").clicked() {
+                        self.debug_open = true
+                    }
                 }
             });
     }
