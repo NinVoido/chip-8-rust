@@ -35,7 +35,7 @@ impl crate::utilities::cpu::Cpu {
     ///8XY5 instruction implementation
     ///Substracts value of register VY from VX and puts the result into VX
     pub fn sub(&mut self, x: u8, y: u8) {
-        if self.registers[x as usize] > self.registers[y as usize] {
+        if self.registers[x as usize] >= self.registers[y as usize] {
             self.registers[15] = 1
         } else {
             self.registers[15] = 0
@@ -48,7 +48,7 @@ impl crate::utilities::cpu::Cpu {
     ///8XY7 instruction implementation
     ///Substracts value of register VX from VY and puts the result into VX
     pub fn subn(&mut self, x: u8, y: u8) {
-        if self.registers[x as usize] > self.registers[y as usize] {
+        if self.registers[y as usize] >= self.registers[x as usize] {
             self.registers[15] = 1
         } else {
             self.registers[15] = 0

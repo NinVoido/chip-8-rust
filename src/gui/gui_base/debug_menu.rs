@@ -9,8 +9,13 @@ impl crate::gui::gui_base::Gui {
                     ui.label(format!("Last executing address: {:X?}", dbginfo.pc));
 
                     ui.label(format!(
-                        "Last instruction: {:X?}{:X?}",
+                        "Next instruction: {:X?}|{:X?}",
                         dbginfo.cmd.0, dbginfo.cmd.1
+                    ));
+
+                    ui.label(format!(
+                        "Last instruction: {:X?}|{:X}",
+                        dbginfo.last_cmd.0, dbginfo.last_cmd.1
                     ));
 
                     if ui.button("Open registers").clicked() {

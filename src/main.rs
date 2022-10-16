@@ -110,6 +110,14 @@ fn main() -> Result<(), Error> {
                         egui_things.throw_error(err);
                     }
                 }
+
+                if chip.dt > 0 {
+                    chip.dt -= 1
+                }
+
+                if chip.st > 0 {
+                    chip.st -= 1
+                }
             }
             CpuState::Debg => {
                 if next_step {

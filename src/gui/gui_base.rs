@@ -57,6 +57,7 @@ struct DebugInfo {
     pc: u16,
     stack: crate::utilities::cpu::Stack,
     cmd: (u8, u8),
+    last_cmd: (u8, u8),
 }
 
 impl Framework {
@@ -148,8 +149,14 @@ impl Framework {
             registers: chip.registers,
             stack: chip.stack,
             pc: chip.pc,
+            last_cmd: if let Some(dbg) = &self.gui.debug_info {
+                dbg.cmd
+            } else {
+                (0, 0)
+            },
             cmd: (chip.ram[chip.pc as usize], chip.ram[chip.pc as usize + 1]),
-        })
+        });
+//        println!("{:X?}|{:X?}", chip.ram[chip.pc as usize], chip.ram[chip.pc as usize + 1])
     }
     ///Tells egui to open debug menu
     pub fn open_debug(&mut self) {
