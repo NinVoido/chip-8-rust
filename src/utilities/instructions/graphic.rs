@@ -22,7 +22,7 @@ impl crate::utilities::cpu::Cpu {
         for row in 0..n {
             for i in (0..8).rev() {
                 let cords = (
-                    ((7 - i) + self.registers[vx as usize]) % 64,
+                    ((7 - i) + self.registers[vx as usize] as u16) as u8 % 64,
                     (row + self.registers[vy as usize]) % 32,
                 );
                 let prev = self.screen[cords.1 as usize][cords.0 as usize];

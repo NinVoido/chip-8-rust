@@ -17,7 +17,7 @@ impl crate::utilities::cpu::Cpu {
     ///FX0A instruction implementation
     ///Waits for a key to be pressed, than puts hex value of pressed key into register VX
     pub fn ld_keyboard(&mut self, x: u8, input: &WinitInputHelper) {
-        //       while input.key_pressed_os
+        self.registers[x as usize] = 14;
     }
 }
 
@@ -42,3 +42,5 @@ fn to_keycode(keynum: u8) -> winit::event::VirtualKeyCode {
         _ => winit::event::VirtualKeyCode::Unlabeled,
     }
 }
+
+//fn to_hex(
