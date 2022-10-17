@@ -14,6 +14,6 @@ impl crate::utilities::cpu::Cpu {
     ///FX18 instruction implementation
     ///Sets the ST to the value in register VX
     pub fn ld_to_sound_timer(&mut self, x: u8) {
-        self.st = self.registers[x as usize]
+        self.st = self.registers[x as usize];
     }
 }

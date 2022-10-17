@@ -16,8 +16,8 @@ impl crate::utilities::cpu::Cpu {
     }
     ///FX0A instruction implementation
     ///Waits for a key to be pressed, than puts hex value of pressed key into register VX
-    pub fn ld_keyboard(&mut self, x: u8, input: &WinitInputHelper) {
-        self.registers[x as usize] = 14;
+    pub fn ld_keyboard(&mut self, x: u8) {
+        self.scan_info = (true, x)
     }
 }
 

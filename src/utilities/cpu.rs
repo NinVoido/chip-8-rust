@@ -24,6 +24,10 @@ pub struct Cpu {
     ///Frame buffer of CHIP-8 CPU
     ///If redraw_needed flag is up contents of this fb are written to main frame provided by pixels
     pub screen: [[bool; 64]; 32],
+    ///Flag needed for key scan instrucion implementation
+    pub scan_info: (bool, u8),
+    ///Flag for audio playback
+    pub should_beep: bool,
 }
 ///Stack struct, which contains 16-element max stack and stack pointer
 #[derive(Copy, Clone)]
@@ -58,7 +62,6 @@ impl Stack {
             return Err("Popping from empty stack");
         }
         self.sp -= 1;
-        self.stack[self.sp as usize] = 0;
         Ok(())
     }
 }
@@ -85,6 +88,8 @@ impl Cpu {
             st: 0,
             redraw_needed: false,
             screen: [[false; 64]; 32],
+            scan_info: (false, 0),
+            should_beep: false,
         };
         let fonts: [u8; 80] = [
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0

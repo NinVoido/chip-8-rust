@@ -44,12 +44,14 @@ struct Gui {
     regs_open: bool,
     ///Stack viewer
     stack_open: bool,
-    ///Program viewer
-    ram_open: bool,
     ///Register changed flag
     regs_changed: bool,
+    ///Timer changed flag
+    timer_changed: bool,
     ///If program is started in debugging mode
     debug_start: bool,
+    ///If timer debug window is open
+    timers_open: bool,
 }
 
 struct DebugInfo {
@@ -58,6 +60,8 @@ struct DebugInfo {
     stack: crate::utilities::cpu::Stack,
     cmd: (u8, u8),
     last_cmd: (u8, u8),
+    st: u8,
+    dt: u8,
 }
 
 impl Framework {
@@ -127,16 +131,20 @@ impl Framework {
         self.gui.debug_start = false;
     }
     ///Get new registers from GUI
-    pub fn get_regs(&mut self) -> Option<[u8; 16]> {
-        if self.gui.regs_changed {
-            if let Some(dbginfo) = &self.gui.debug_info {
-                Some(dbginfo.registers)
-            } else {
-                None
+    pub fn get_info(&mut self) -> (Option<[u8; 16]>, Option<(u8, u8)>) {
+        let mut result: (Option<[u8; 16]>, Option<(u8, u8)>) = (None, None);
+        if let Some(dbginfo) = &self.gui.debug_info {
+            if self.gui.regs_changed {
+                result.0 = Some(dbginfo.registers);
+                self.gui.regs_changed = false
             }
-        } else {
-            None
+
+            if self.gui.timer_changed {
+                result.1 = Some((dbginfo.dt, dbginfo.st));
+                self.gui.timer_changed = false
+            }
         }
+        return result;
     }
     ///Transports error from main to error gui
     pub fn throw_error(&mut self, error: String) {
@@ -155,8 +163,10 @@ impl Framework {
                 (0, 0)
             },
             cmd: (chip.ram[chip.pc as usize], chip.ram[chip.pc as usize + 1]),
+            st: chip.st,
+            dt: chip.dt,
         });
-//        println!("{:X?}|{:X?}", chip.ram[chip.pc as usize], chip.ram[chip.pc as usize + 1])
+        //        println!("{:X?}|{:X?}", chip.ram[chip.pc as usize], chip.ram[chip.pc as usize + 1])
     }
     ///Tells egui to open debug menu
     pub fn open_debug(&mut self) {
@@ -220,11 +230,12 @@ impl Gui {
             error_occured: false,
             error: None,
             debug_info: None,
-            ram_open: false,
             regs_open: false,
             regs_changed: false,
             stack_open: false,
             debug_start: false,
+            timers_open: false,
+            timer_changed: false,
         }
     }
     ///Creates main UI

@@ -5,6 +5,7 @@ use std::time::Instant;
 
 use gui::gui_base::Framework;
 use pixels::{Error, Pixels, SurfaceTexture};
+use rodio::{OutputStream, Sink};
 use utilities::{cpu::Cpu, executer::CpuState};
 use winit::{
     dpi::LogicalSize,
@@ -23,6 +24,10 @@ fn main() -> Result<(), Error> {
 
     let mut chip = Cpu::new();
 
+    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
+    let sink = Sink::try_new(&stream_handle).unwrap();
+    sink.pause();
+    sink.append(rodio::source::SineWave::new(440.0));
     let window = {
         let size = LogicalSize::new(WIDTH as f64, HEIGHT as f64);
         WindowBuilder::new()
@@ -54,6 +59,7 @@ fn main() -> Result<(), Error> {
         control_flow.set_poll();
         let iter_started = Instant::now();
         let mut redraw = false;
+        let beep_changed = chip.should_beep;
         if input.update(&event) {
             if input.key_pressed(winit::event::VirtualKeyCode::Escape) || input.quit() {
                 *control_flow = ControlFlow::Exit;
@@ -116,13 +122,21 @@ fn main() -> Result<(), Error> {
                 }
 
                 if chip.st > 0 {
-                    chip.st -= 1
+                    chip.st -= 1;
+                    if chip.st == 0{
+                        chip.should_beep = false
+                    }
                 }
-            }
+            },
             CpuState::Debg => {
                 if next_step {
-                    if let Some(regs) = egui_things.get_regs() {
+                    let info = egui_things.get_info();
+                    if let Some(regs) = info.0 {
                         chip.registers = regs
+                    }
+                    if let Some(timers) = info.1 {
+                        chip.dt = timers.0;
+                        chip.st = timers.1
                     }
                     if let Err(error) = chip.execute(&input) {
                         state = CpuState::Idle;
@@ -140,6 +154,12 @@ fn main() -> Result<(), Error> {
             redraw = true;
         }
 
+        if chip.should_beep != beep_changed{
+            if chip.should_beep {
+                sink.play();
+        
+            } else { sink.pause(); }
+        }
         if redraw {
             window.request_redraw()
         }

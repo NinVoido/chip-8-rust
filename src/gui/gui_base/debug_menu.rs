@@ -25,6 +25,10 @@ impl crate::gui::gui_base::Gui {
                     if ui.button("Open stack info").clicked() {
                         self.stack_open = true;
                     }
+
+                    if ui.button("Open timers").clicked() {
+                        self.timers_open = true
+                    }
                 } else {
                     ui.label("No debug information available");
                 }
@@ -120,6 +124,16 @@ impl crate::gui::gui_base::Gui {
                                 });
                             }
                         });
+                }
+            });
+
+        egui::Window::new("Timers")
+            .open(&mut self.timers_open)
+            .show(ctx, |ui| {
+                if let Some(dbginfo) = &mut self.debug_info {
+                    if ui.add(egui::Slider::new(&mut dbginfo.dt, 0..=255).text("Delay timer")).changed() || ui.add(egui::Slider::new(&mut dbginfo.st, 0..=255).text("Sound timer")).changed(){
+                        self.timer_changed = true
+                    }
                 }
             });
     }

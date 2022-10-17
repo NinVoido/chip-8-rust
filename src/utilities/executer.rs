@@ -55,7 +55,7 @@ impl Cpu {
             },
             0xF => match nb.nn {
                 7 => self.ld_from_delay_timer(nb.x),
-                0xA => self.ld_keyboard(nb.x, input),
+                0xA => self.ld_keyboard(nb.x),
                 0x15 => self.ld_to_delay_timer(nb.x),
                 0x18 => self.ld_to_sound_timer(nb.x),
                 0x1E => self.add_index(nb.x),
@@ -66,7 +66,12 @@ impl Cpu {
                 _ => (),
             },
             _ => (),
-        }
+        };
+        if self.st > 0{
+            self.should_beep = true
+        } else{
+            self.should_beep = false
+        };
         Ok(())
     }
 }
