@@ -28,6 +28,8 @@ pub struct Cpu {
     pub scan_info: (bool, u8),
     ///Flag for audio playback
     pub should_beep: bool,
+    ///CPU's input buffer
+    pub keypad: [bool; 16]
 }
 ///Stack struct, which contains 16-element max stack and stack pointer
 #[derive(Copy, Clone)]
@@ -90,6 +92,7 @@ impl Cpu {
             screen: [[false; 64]; 32],
             scan_info: (false, 0),
             should_beep: false,
+            keypad: [false ; 16]
         };
         let fonts: [u8; 80] = [
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0

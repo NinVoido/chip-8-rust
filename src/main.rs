@@ -98,11 +98,12 @@ fn main() -> Result<(), Error> {
                 state = CpuState::Exec;
             }
         }
+        chip.update_keypad(&input);
         match state {
             CpuState::Idle => (),
             CpuState::Exec => {
                 for _ in 1..=10 {
-                    if let Err(error) = chip.execute(&input) {
+                    if let Err(error) = chip.execute() {
                         state = CpuState::Idle;
                         let err = format!(
                             "Fatal: {};\nInfo:\nIndex: {:X?}\nCommand: {:X?}{:X}\nPC:{}\n",
@@ -123,11 +124,11 @@ fn main() -> Result<(), Error> {
 
                 if chip.st > 0 {
                     chip.st -= 1;
-                    if chip.st == 0{
+                    if chip.st == 0 {
                         chip.should_beep = false
                     }
                 }
-            },
+            }
             CpuState::Debg => {
                 if next_step {
                     let info = egui_things.get_info();
@@ -138,7 +139,7 @@ fn main() -> Result<(), Error> {
                         chip.dt = timers.0;
                         chip.st = timers.1
                     }
-                    if let Err(error) = chip.execute(&input) {
+                    if let Err(error) = chip.execute() {
                         state = CpuState::Idle;
                         let err = format!("Fatal: {}", error);
                         egui_things.throw_error(err)
@@ -154,11 +155,12 @@ fn main() -> Result<(), Error> {
             redraw = true;
         }
 
-        if chip.should_beep != beep_changed{
+        if chip.should_beep != beep_changed {
             if chip.should_beep {
                 sink.play();
-        
-            } else { sink.pause(); }
+            } else {
+                sink.pause();
+            }
         }
         if redraw {
             window.request_redraw()

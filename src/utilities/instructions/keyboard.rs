@@ -1,16 +1,15 @@
-use winit_input_helper::WinitInputHelper;
 impl crate::utilities::cpu::Cpu {
     ///EX9E instruction implementation
     ///Skips next instruction if certain key is pressed
-    pub fn skp(&mut self, x: u8, input: &WinitInputHelper) {
-        if input.key_held(self::to_keycode(self.registers[x as usize])) {
+    pub fn skp(&mut self, x: u8) {
+        if self.keypad[x as usize] {
             self.pc += 2
         }
     }
     ///EXA1 instruction implementation
     ///Skips next instruction if certain key is NOT pressed
-    pub fn sknp(&mut self, x: u8, input: &WinitInputHelper) {
-        if !input.key_held(self::to_keycode(self.registers[x as usize])) {
+    pub fn sknp(&mut self, x: u8) {
+        if !self.keypad[x as usize] {
             self.pc += 2
         }
     }

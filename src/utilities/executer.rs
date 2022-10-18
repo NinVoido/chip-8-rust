@@ -1,8 +1,7 @@
-use winit_input_helper::WinitInputHelper;
 
 use crate::utilities::cpu::Cpu;
 impl Cpu {
-    pub fn execute(&mut self, input: &WinitInputHelper) -> Result<(), &'static str> {
+    pub fn execute(&mut self, ) -> Result<(), &'static str> {
         let instruction =
             ((self.ram[self.pc as usize] as u16) << 8) + self.ram[self.pc as usize + 1] as u16;
         let nb = Nibbles {
@@ -49,8 +48,8 @@ impl Cpu {
             0xC => self.rnd(nb.x, nb.nn),
             0xD => self.drw(nb.x, nb.y, nb.n),
             0xE => match nb.nn {
-                0x9E => self.skp(nb.x, input),
-                0xA1 => self.sknp(nb.x, input),
+                0x9E => self.skp(nb.x),
+                0xA1 => self.sknp(nb.x),
                 _ => (),
             },
             0xF => match nb.nn {
@@ -67,9 +66,9 @@ impl Cpu {
             },
             _ => (),
         };
-        if self.st > 0{
+        if self.st > 0 {
             self.should_beep = true
-        } else{
+        } else {
             self.should_beep = false
         };
         Ok(())

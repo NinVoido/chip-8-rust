@@ -131,7 +131,13 @@ impl crate::gui::gui_base::Gui {
             .open(&mut self.timers_open)
             .show(ctx, |ui| {
                 if let Some(dbginfo) = &mut self.debug_info {
-                    if ui.add(egui::Slider::new(&mut dbginfo.dt, 0..=255).text("Delay timer")).changed() || ui.add(egui::Slider::new(&mut dbginfo.st, 0..=255).text("Sound timer")).changed(){
+                    if ui
+                        .add(egui::Slider::new(&mut dbginfo.dt, 0..=255).text("Delay timer"))
+                        .changed()
+                        || ui
+                            .add(egui::Slider::new(&mut dbginfo.st, 0..=255).text("Sound timer"))
+                            .changed()
+                    {
                         self.timer_changed = true
                     }
                 }
