@@ -8,7 +8,7 @@ impl crate::utilities::cpu::Cpu {
     ///Calls a subroutine at a given address
     ///Pushes current pc on stack and increments stack pointer
     pub fn call(&mut self, address: u16) -> Result<(), &'static str> {
-        self.stack.push(self.pc - 2)?;
+        self.stack.push(self.pc)?;
         self.pc = address;
         Ok(())
     }
