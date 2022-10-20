@@ -13,7 +13,7 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
 };
-use winit_input_helper::WinitInputHelper;
+use winit_input_helper::{WinitInputHelper, TextChar};
 
 const WIDTH: u32 = 64;
 const HEIGHT: u32 = 32;
@@ -55,6 +55,7 @@ fn main() -> Result<(), Error> {
     };
     let mut state = CpuState::Idle;
     let mut next_step = false;
+    let mut prev_state = CpuState::Idle;
     event_loop.run(move |event, _, control_flow| {
         control_flow.set_poll();
         let iter_started = Instant::now();
@@ -101,8 +102,19 @@ fn main() -> Result<(), Error> {
         chip.update_keypad(&input);
         match state {
             CpuState::Idle => (),
+            CpuState::Scan => {
+                let txt = input.text();
+                if txt.len() > 0{
+                if let TextChar::Char(chr) = txt[0] {
+                if "1234qwerasdfzxcv".contains(chr) {
+                    chip.put_scanned(chr);
+                    state = prev_state;
+                }
+                }
+                }
+            },
             CpuState::Exec => {
-                for _ in 1..=10 {
+                for _ in 1..=8 {
                     if let Err(error) = chip.execute() {
                         state = CpuState::Idle;
                         let err = format!(
@@ -115,6 +127,11 @@ fn main() -> Result<(), Error> {
                         );
                         egui_things.debug_send(&chip);
                         egui_things.throw_error(err);
+                    };
+                    if chip.scan_info.0 {
+                        prev_state = CpuState::Exec;
+                        state = CpuState::Scan;
+                        break;
                     }
                 }
 
@@ -165,6 +182,7 @@ fn main() -> Result<(), Error> {
         if redraw {
             window.request_redraw()
         }
+
         match event {
             Event::WindowEvent { event, .. } => {
                 egui_things.handle_event(&event);
@@ -183,6 +201,7 @@ fn main() -> Result<(), Error> {
                 if render_result.is_err() {
                     *control_flow = ControlFlow::Exit;
                 }
+
                 let time = iter_started.elapsed();
                 std::thread::sleep(if FPS < time {
                     std::time::Duration::from_secs(0)

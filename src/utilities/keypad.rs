@@ -1,13 +1,13 @@
 use winit::event::VirtualKeyCode::*;
 impl super::cpu::Cpu {
     ///Update Chip's keypad if any of keypad keys were pressed
-    pub fn update_keypad(&mut self, input: &winit_input_helper::WinitInputHelper){
+    pub fn update_keypad(&mut self, input: &winit_input_helper::WinitInputHelper) {
         if input.key_held(Key1) {
             self.keypad[1] = true
         } else {
             self.keypad[1] = false
         }
-        
+
         if input.key_held(Key2) {
             self.keypad[2] = true
         } else {
@@ -31,7 +31,7 @@ impl super::cpu::Cpu {
         } else {
             self.keypad[4] = false
         }
-        
+
         if input.key_held(W) {
             self.keypad[5] = true
         } else {
@@ -99,5 +99,3 @@ impl super::cpu::Cpu {
         }
     }
 }
-
-

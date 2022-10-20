@@ -1,7 +1,6 @@
-
 use crate::utilities::cpu::Cpu;
 impl Cpu {
-    pub fn execute(&mut self, ) -> Result<(), &'static str> {
+    pub fn execute(&mut self) -> Result<(), &'static str> {
         let instruction =
             ((self.ram[self.pc as usize] as u16) << 8) + self.ram[self.pc as usize + 1] as u16;
         let nb = Nibbles {
@@ -95,9 +94,10 @@ struct Nibbles {
     ///(instruction & 0xf000) >> 12
     id: u8,
 }
-
+#[derive(Copy, Clone)]
 pub enum CpuState {
     Idle,
     Exec,
     Debg,
+    Scan,
 }
