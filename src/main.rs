@@ -18,6 +18,7 @@ use winit_input_helper::{WinitInputHelper, TextChar};
 const WIDTH: u32 = 64;
 const HEIGHT: u32 = 32;
 const FPS: std::time::Duration = std::time::Duration::from_millis(16);
+const CLOCKS_PER_FRAME: u16 = 10;
 fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
@@ -56,6 +57,8 @@ fn main() -> Result<(), Error> {
     let mut state = CpuState::Idle;
     let mut next_step = false;
     let mut prev_state = CpuState::Idle;
+    let mut iter_time = Instant::now();
+    let mut iter_done = false;
     event_loop.run(move |event, _, control_flow| {
         control_flow.set_poll();
         let iter_started = Instant::now();
@@ -114,7 +117,12 @@ fn main() -> Result<(), Error> {
                 }
             },
             CpuState::Exec => {
-                for _ in 1..=8 {
+                if iter_time.elapsed() > FPS {
+                    iter_time = Instant::now();
+                    iter_done = false
+                }
+                if !iter_done {
+                for _ in 1..=CLOCKS_PER_FRAME {
                     if let Err(error) = chip.execute() {
                         state = CpuState::Idle;
                         let err = format!(
@@ -144,6 +152,8 @@ fn main() -> Result<(), Error> {
                     if chip.st == 0 {
                         chip.should_beep = false
                     }
+                }
+                iter_done = true
                 }
             }
             CpuState::Debg => {

@@ -35,47 +35,51 @@ impl crate::utilities::cpu::Cpu {
     ///8XY5 instruction implementation
     ///Substracts value of register VY from VX and puts the result into VX
     pub fn sub(&mut self, x: u8, y: u8) {
-        if self.registers[x as usize] >= self.registers[y as usize] {
-            self.registers[15] = 1
+        if self.registers[x as usize] < self.registers[y as usize] {
+self.registers[x as usize] = (0x100 - self.registers[y as usize] as u16 + self.registers[x as usize] as u16) as u8; 
+        self.registers[15] = 0
         } else {
-            self.registers[15] = 0
+            self.registers[x as usize] = self.registers[x as usize] - self.registers[y as usize];
+            self.registers[15] = 1
         }
         //IDK how to properly handle this, so i guess I'll just use to_be_bytes
-        self.registers[x as usize] = (self.registers[x as usize] as i16
+        /*self.registers[x as usize] = (self.registers[x as usize] as i16
             - self.registers[y as usize] as i16)
-            .to_be_bytes()[1];
+            .to_be_bytes()[1];*/
     }
     ///8XY7 instruction implementation
     ///Substracts value of register VX from VY and puts the result into VX
     pub fn subn(&mut self, x: u8, y: u8) {
-        if self.registers[y as usize] >= self.registers[x as usize] {
-            self.registers[15] = 1
-        } else {
+        if self.registers[y as usize] < self.registers[x as usize] { 
+            self.registers[x as usize] = (0x100 - self.registers[x as usize] as u16 + self.registers[y as usize] as u16) as u8;
             self.registers[15] = 0
+        } else { 
+            self.registers[x as usize] = self.registers[y as usize] - self.registers[x as usize];
+            self.registers[15] = 1
         }
         //IDK how to properly handle this, so i guess I'll just use to_be_bytes
-        self.registers[x as usize] = (self.registers[y as usize] as i16
+        /*self.registers[x as usize] = (self.registers[y as usize] as i16
             - self.registers[x as usize] as i16)
-            .to_be_bytes()[1];
+            .to_be_bytes()[1];*/
     }
     ///8XY6
     ///If least-significant bit of Vx is 1, VF is set to 1, otherwise 0. Then Vx>>=1
-    pub fn shr(&mut self, x: u8) {
+    pub fn shr(&mut self, x: u8,) {
         if (self.registers[x as usize] & 0b1) == 1 {
             self.registers[15] = 1
         } else {
             self.registers[15] = 0
         };
-        self.registers[x as usize] >>= 1;
+        self.registers[x as usize] = self.registers[x as usize] >> 1;
     }
     ///8XYE
     ///If most-significant bit of Vx is 1, VF is set to 1, otherwise 0. Then Vx<<=1
-    pub fn shl(&mut self, x: u8) {
+    pub fn shl(&mut self, x: u8,) {
         if (self.registers[x as usize] >> 7) == 1 {
             self.registers[15] = 1
         } else {
             self.registers[15] = 0
         };
-        self.registers[x as usize] <<= 1;
+        self.registers[x as usize] = self.registers[x as usize] << 1;
     }
 }
