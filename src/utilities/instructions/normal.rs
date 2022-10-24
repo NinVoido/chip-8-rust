@@ -96,7 +96,7 @@ impl crate::utilities::cpu::Cpu {
         for j in 0..=x {
             self.ram[(self.i + j as u16) as usize] = self.registers[j as usize]
         }
-        self.i += x as u16 + 1
+        self.i += x as u16 //+ 1
     }
     ///FX65 instruction implementation
     ///Read registers V0 through VX from memory starting at I
@@ -104,6 +104,6 @@ impl crate::utilities::cpu::Cpu {
         for j in 0..=x {
             self.registers[j as usize] = self.ram[(self.i + j as u16) as usize]
         }
-        self.i += x as u16 + 1
+        self.i += x as u16 //+ 1
     }
 }
