@@ -30,6 +30,12 @@ pub struct Cpu {
     pub should_beep: bool,
     ///CPU's input buffer
     pub keypad: [bool; 16],
+    ///Flag registers
+    pub fl_regs: [u8;16],
+    ///Is highres on
+    pub highres: bool,
+    ///Did the execution stop
+    pub stopped: bool,
 }
 ///Stack struct, which contains 16-element max stack and stack pointer
 #[derive(Copy, Clone)]
@@ -93,6 +99,9 @@ impl Cpu {
             scan_info: (false, 0),
             should_beep: false,
             keypad: [false; 16],
+            fl_regs: [0u8; 16],
+            highres: false,
+            stopped: false,
         };
         let fonts: [u8; 80] = [
             0xF0, 0x90, 0x90, 0x90, 0xF0, // 0

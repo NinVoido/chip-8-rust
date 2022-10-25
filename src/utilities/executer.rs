@@ -20,7 +20,15 @@ impl Cpu {
             0 => match nb.nn {
                 0xE0 => self.cls(),
                 0xEE => self.ret()?,
-                _ => (),
+                0xFB => (),//scroll right by 4
+                0xFC => (),//scroll left by 4
+                0xFD => (),//exit
+                0xFE => (),//lowres
+                0xFF => (),//highres
+                _ => match nb.y {
+                    0xC => (),//scroll down by N
+                    _ => (),
+                },
             },
             1 => self.jp(nb.nnn),
             2 => self.call(nb.nnn)?,
@@ -45,7 +53,7 @@ impl Cpu {
             0xA => self.ld_index(nb.nnn),
             0xB => self.jp_with(nb.nnn),
             0xC => self.rnd(nb.x, nb.nn),
-            0xD => self.drw(nb.x, nb.y, nb.n),
+            0xD => self.drw(nb.x, nb.y, nb.n), //Update with big sprite mode
             0xE => match nb.nn {
                 0x9E => self.skp(nb.x),
                 0xA1 => self.sknp(nb.x),
@@ -58,9 +66,12 @@ impl Cpu {
                 0x18 => self.ld_to_sound_timer(nb.x),
                 0x1E => self.add_index(nb.x),
                 0x29 => self.ld_index_font(nb.x),
+                0x30 => (), //bighex
                 0x33 => self.ld_bcd(nb.x),
                 0x55 => self.ld_i_vx(nb.x),
                 0x65 => self.ld_vx_i(nb.x),
+                0x75 => (), //Store in user flags
+                0x85 => (), //Restore from user flags
                 _ => (),
             },
             _ => (),
