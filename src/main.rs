@@ -13,7 +13,7 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
 };
-use winit_input_helper::{WinitInputHelper, TextChar};
+use winit_input_helper::{TextChar, WinitInputHelper};
 
 const WIDTH: u32 = 64;
 const HEIGHT: u32 = 32;
@@ -107,53 +107,59 @@ fn main() -> Result<(), Error> {
             CpuState::Idle => (),
             CpuState::Scan => {
                 let txt = input.text();
-                if txt.len() > 0{
-                if let TextChar::Char(chr) = txt[0] {
-                if "1234qwerasdfzxcv".contains(chr) {
-                    chip.put_scanned(chr);
-                    state = prev_state;
+                if txt.len() > 0 {
+                    if let TextChar::Char(chr) = txt[0] {
+                        if "1234qwerasdfzxcv".contains(chr) {
+                            chip.put_scanned(chr);
+                            state = prev_state;
+                        }
+                    }
                 }
-                }
-                }
-            },
+            }
             CpuState::Exec => {
                 if iter_time.elapsed() > FPS {
                     iter_time = Instant::now();
                     iter_done = false
                 }
                 if !iter_done {
-                for _ in 1..=CLOCKS_PER_FRAME {
-                    if let Err(error) = chip.execute() {
+                    for _ in 1..=CLOCKS_PER_FRAME {
+                        if let Err(error) = chip.execute() {
+                            state = CpuState::Idle;
+                            let err = format!(
+                                "Fatal: {};\nInfo:\nIndex: {:X?}\nCommand: {:X?}{:X}\nPC:{}\n",
+                                error,
+                                chip.i,
+                                chip.ram[chip.pc as usize - 2],
+                                chip.ram[chip.pc as usize - 1],
+                                chip.pc
+                            );
+                            egui_things.debug_send(&chip);
+                            egui_things.throw_error(err);
+                        };
+                        if chip.scan_info.0 {
+                            prev_state = CpuState::Exec;
+                            state = CpuState::Scan;
+                            break;
+                        }
+                    }
+
+                    //I only do this once in a frame because on low clock rates this shouldn't hurt 
+                    if chip.stopped {
                         state = CpuState::Idle;
-                        let err = format!(
-                            "Fatal: {};\nInfo:\nIndex: {:X?}\nCommand: {:X?}{:X}\nPC:{}\n",
-                            error,
-                            chip.i,
-                            chip.ram[chip.pc as usize - 2],
-                            chip.ram[chip.pc as usize - 1],
-                            chip.pc
-                        );
-                        egui_things.debug_send(&chip);
-                        egui_things.throw_error(err);
-                    };
-                    if chip.scan_info.0 {
-                        prev_state = CpuState::Exec;
-                        state = CpuState::Scan;
-                        break;
+                        chip.stopped = false
                     }
-                }
 
-                if chip.dt > 0 {
-                    chip.dt -= 1
-                }
-
-                if chip.st > 0 {
-                    chip.st -= 1;
-                    if chip.st == 0 {
-                        chip.should_beep = false
+                    if chip.dt > 0 {
+                        chip.dt -= 1
                     }
-                }
-                iter_done = true
+
+                    if chip.st > 0 {
+                        chip.st -= 1;
+                        if chip.st == 0 {
+                            chip.should_beep = false
+                        }
+                    }
+                    iter_done = true
                 }
             }
             CpuState::Debg => {

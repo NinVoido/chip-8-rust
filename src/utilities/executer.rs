@@ -20,13 +20,13 @@ impl Cpu {
             0 => match nb.nn {
                 0xE0 => self.cls(),
                 0xEE => self.ret()?,
-                0xFB => (),//scroll right by 4
-                0xFC => (),//scroll left by 4
-                0xFD => (),//exit
-                0xFE => (),//lowres
-                0xFF => (),//highres
+                0xFB => (),          //scroll right by 4
+                0xFC => (),          //scroll left by 4
+                0xFD => self.exit(), //exit
+                0xFE => self.low(),          //lowres
+                0xFF => self.high(),          //highres
                 _ => match nb.y {
-                    0xC => (),//scroll down by N
+                    0xC => (), //scroll down by N
                     _ => (),
                 },
             },
@@ -44,9 +44,9 @@ impl Cpu {
                 3 => self.xor(nb.x, nb.y),
                 4 => self.add_arithmetic(nb.x, nb.y),
                 5 => self.sub(nb.x, nb.y),
-                6 => self.shr(nb.x, nb.y),
+                6 => self.shr_schip(nb.x),
                 7 => self.subn(nb.x, nb.y),
-                0xE => self.shl(nb.x, nb.y),
+                0xE => self.shl_schip(nb.x),
                 _ => (),
             },
             9 => self.sne_reg(nb.x, nb.y),
@@ -66,12 +66,12 @@ impl Cpu {
                 0x18 => self.ld_to_sound_timer(nb.x),
                 0x1E => self.add_index(nb.x),
                 0x29 => self.ld_index_font(nb.x),
-                0x30 => (), //bighex
+                0x30 => self.ld_index_bigfont(nb.x), //bighex
                 0x33 => self.ld_bcd(nb.x),
                 0x55 => self.ld_i_vx(nb.x),
                 0x65 => self.ld_vx_i(nb.x),
-                0x75 => (), //Store in user flags
-                0x85 => (), //Restore from user flags
+                0x75 => self.ld_r_vx(nb.x), //Store in user flags
+                0x85 => self.ld_vx_r(nb.x), //Restore from user flags
                 _ => (),
             },
             _ => (),
