@@ -29,10 +29,9 @@ impl crate::utilities::cpu::Cpu {
     }
 }
 
-
 fn to_hex(chr: char) -> u8 {
-    match chr.to_ascii_lowercase(){
-        'x' => 0, 
+    match chr.to_ascii_lowercase() {
+        'x' => 0,
         '1' => 1,
         '2' => 2,
         '3' => 3,
@@ -48,6 +47,6 @@ fn to_hex(chr: char) -> u8 {
         'r' => 13,
         'f' => 14,
         'v' => 15,
-        _ => 0, 
+        _ => 0,
     }
 }

@@ -52,8 +52,12 @@ struct Gui {
     debug_start: bool,
     ///If timer debug window is open
     timers_open: bool,
+    ///If keypad menu is open
+    keypad_open: bool,
+    ///If user changed keypad in debug gui
+    keypad_changed: bool,
 }
-
+///Debug information needed for debug gui (fields resemble corresponding fields of CPU)
 struct DebugInfo {
     registers: [u8; 16],
     pc: u16,
@@ -62,6 +66,7 @@ struct DebugInfo {
     last_cmd: (u8, u8),
     st: u8,
     dt: u8,
+    keypad: [bool; 16],
 }
 
 impl Framework {
@@ -130,9 +135,10 @@ impl Framework {
         self.gui.rom_choosed = false;
         self.gui.debug_start = false;
     }
-    ///Get new registers from GUI
-    pub fn get_info(&mut self) -> (Option<[u8; 16]>, Option<(u8, u8)>) {
-        let mut result: (Option<[u8; 16]>, Option<(u8, u8)>) = (None, None);
+    ///Get new info from GUI
+    pub fn get_info(&mut self) -> (Option<[u8; 16]>, Option<(u8, u8)>, Option<[bool; 16]>) {
+        let mut result: (Option<[u8; 16]>, Option<(u8, u8)>, Option<[bool; 16]>) =
+            (None, None, None);
         if let Some(dbginfo) = &self.gui.debug_info {
             if self.gui.regs_changed {
                 result.0 = Some(dbginfo.registers);
@@ -142,6 +148,11 @@ impl Framework {
             if self.gui.timer_changed {
                 result.1 = Some((dbginfo.dt, dbginfo.st));
                 self.gui.timer_changed = false
+            }
+
+            if self.gui.keypad_changed {
+                result.2 = Some(dbginfo.keypad);
+                self.gui.keypad_changed = false
             }
         }
         return result;
@@ -165,6 +176,7 @@ impl Framework {
             cmd: (chip.ram[chip.pc as usize], chip.ram[chip.pc as usize + 1]),
             st: chip.st,
             dt: chip.dt,
+            keypad: chip.keypad,
         });
         //        println!("{:X?}|{:X?}", chip.ram[chip.pc as usize], chip.ram[chip.pc as usize + 1])
     }
@@ -236,6 +248,8 @@ impl Gui {
             debug_start: false,
             timers_open: false,
             timer_changed: false,
+            keypad_open: false,
+            keypad_changed: false,
         }
     }
     ///Creates main UI
