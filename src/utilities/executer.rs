@@ -20,13 +20,13 @@ impl Cpu {
             0 => match nb.nn {
                 0xE0 => self.cls(),
                 0xEE => self.ret()?,
-                0xFB => (),          //scroll right by 4
-                0xFC => (),          //scroll left by 4
+                0xFB => self.scr(),          //scroll right by 4
+                0xFC => self.scl(),          //scroll left by 4
                 0xFD => self.exit(), //exit
                 0xFE => self.low(),          //lowres
                 0xFF => self.high(),          //highres
                 _ => match nb.y {
-                    0xC => (), //scroll down by N
+                    0xC => self.scd(nb.n), //scroll down by N
                     _ => (),
                 },
             },
@@ -53,7 +53,7 @@ impl Cpu {
             0xA => self.ld_index(nb.nnn),
             0xB => self.jp_with(nb.nnn),
             0xC => self.rnd(nb.x, nb.nn),
-            0xD => self.drw(nb.x, nb.y, nb.n), //Update with big sprite mode
+            0xD => self.drw_schip(nb.x, nb.y, nb.n), //Update with big sprite mode
             0xE => match nb.nn {
                 0x9E => self.skp(nb.x),
                 0xA1 => self.sknp(nb.x),

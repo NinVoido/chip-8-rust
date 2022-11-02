@@ -15,10 +15,10 @@ use winit::{
 };
 use winit_input_helper::{TextChar, WinitInputHelper};
 
-const WIDTH: u32 = 64;
-const HEIGHT: u32 = 32;
+const WIDTH: u32 = 128;
+const HEIGHT: u32 = 64;
 const FPS: std::time::Duration = std::time::Duration::from_millis(16);
-const CLOCKS_PER_FRAME: u16 = 10;
+const CLOCKS_PER_FRAME: u16 = 30;
 fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();

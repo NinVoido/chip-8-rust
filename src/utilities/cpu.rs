@@ -98,6 +98,7 @@ impl Cpu {
             st: 0,
             redraw_needed: false,
             screen: [[false; 64]; 32],
+            h_screen: [[false;128];64],
             scan_info: (false, 0),
             should_beep: false,
             keypad: [false; 16],
@@ -155,4 +156,5 @@ impl Cpu {
     pub fn reset(&mut self) {
         *self = Cpu::new()
     }
+    
 }
