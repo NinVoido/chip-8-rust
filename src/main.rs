@@ -18,12 +18,12 @@ use winit_input_helper::{TextChar, WinitInputHelper};
 const WIDTH: u32 = 64;
 const HEIGHT: u32 = 32;
 const FPS: std::time::Duration = std::time::Duration::from_millis(16);
-const CLOCKS_PER_FRAME: u16 = 10;
 fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();
 
     let mut chip = Cpu::new();
+    let mut clocks_per_frame: u16 = 10;
 
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let sink = Sink::try_new(&stream_handle).unwrap();
@@ -102,6 +102,9 @@ fn main() -> Result<(), Error> {
                 state = CpuState::Exec;
             }
         }
+        if let Some(clocks) = egui_things.get_clocks() {
+            clocks_per_frame = clocks
+        }
         chip.update_keypad(&input);
         match state {
             CpuState::Idle => (),
@@ -122,7 +125,7 @@ fn main() -> Result<(), Error> {
                     iter_done = false
                 }
                 if !iter_done {
-                    for _ in 1..=CLOCKS_PER_FRAME {
+                    for _ in 1..=clocks_per_frame {
                         if let Err(error) = chip.execute() {
                             state = CpuState::Idle;
                             let err = format!(

@@ -47,38 +47,36 @@ impl crate::gui::gui_base::Gui {
                         .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
                         .columns(egui_extras::Size::initial(20.0).at_least(20.0), 16);
 
-                    table
-                        .body(|mut body| {
-                                body.row(20.0, |mut row| {
-                                    for col_ind in 0..16 {
-                                    row.col(|ui| {
-                                        ui.centered_and_justified(|ui| {
-                                            ui.label(format!("{:X?}", col_ind));
-                                        });
+                    table.body(|mut body| {
+                        body.row(20.0, |mut row| {
+                            for col_ind in 0..16 {
+                                row.col(|ui| {
+                                    ui.centered_and_justified(|ui| {
+                                        ui.label(format!("{:X?}", col_ind));
                                     });
-                                    }
-                                                                   });
-                                body.row(20.0, |mut row| {
-                                    for col_ind in 0..16 {
-                                     row.col(|ui| {
-                                        ui.centered_and_justified(|ui| {
-                                            if ui
-                                                .add(
-                                                    egui::DragValue::new(
-                                                        &mut dbginfo.registers[col_ind as usize],
-                                                    )
-                                                    .clamp_range(0..=255),
-                                                )
-                                                .changed()
-                                            {
-                                                self.regs_changed = true;
-                                            }
-                                        });
-                                    });
-                                    }
-
                                 });
+                            }
                         });
+                        body.row(20.0, |mut row| {
+                            for col_ind in 0..16 {
+                                row.col(|ui| {
+                                    ui.centered_and_justified(|ui| {
+                                        if ui
+                                            .add(
+                                                egui::DragValue::new(
+                                                    &mut dbginfo.registers[col_ind as usize],
+                                                )
+                                                .clamp_range(0..=255),
+                                            )
+                                            .changed()
+                                        {
+                                            self.regs_changed = true;
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                    });
                 }
             });
 

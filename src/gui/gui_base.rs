@@ -1,5 +1,7 @@
 mod debug_menu;
 mod error_menus;
+mod settings;
+
 use egui::{ClippedPrimitive, Context, TexturesDelta};
 use egui_wgpu::renderer::{RenderPass, ScreenDescriptor};
 use pixels::{wgpu, PixelsContext};
@@ -56,6 +58,12 @@ struct Gui {
     keypad_open: bool,
     ///If user changed keypad in debug gui
     keypad_changed: bool,
+    ///Clock rate of CHIP-8
+    clocks_per_fr: u16,
+    ///If clock rate was changed
+    clock_changed: bool,
+    ///Is the settings window open
+    sett_open: bool,
 }
 ///Debug information needed for debug gui (fields resemble corresponding fields of CPU)
 struct DebugInfo {
@@ -157,6 +165,15 @@ impl Framework {
         }
         return result;
     }
+    ///Send clocks per frame from gui
+    pub fn get_clocks(&mut self) -> Option<u16> {
+        if self.gui.clock_changed {
+            self.gui.clock_changed = false;
+            return Some(self.gui.clocks_per_fr);
+        } else {
+            return None;
+        }
+    }
     ///Transports error from main to error gui
     pub fn throw_error(&mut self, error: String) {
         self.gui.error_occured = true;
@@ -222,6 +239,7 @@ impl Framework {
             self.gui.ui(egui_ctx);
             self.gui.debug_ui(egui_ctx);
             self.gui.error_menus(egui_ctx);
+            self.gui.settings(egui_ctx);
         });
 
         self.textures.append(output.textures_delta);
@@ -250,6 +268,9 @@ impl Gui {
             timer_changed: false,
             keypad_open: false,
             keypad_changed: false,
+            clocks_per_fr: 10,
+            clock_changed: false,
+            sett_open: false,
         }
     }
     ///Creates main UI
@@ -266,6 +287,13 @@ impl Gui {
                 ui.menu_button("Debug", |ui| {
                     if ui.button("Open menu").clicked() {
                         self.debug_open = true;
+                        ui.close_menu();
+                    }
+                });
+
+                ui.menu_button("Edit", |ui| {
+                    if ui.button("Settings").clicked() {
+                        self.sett_open = true;
                         ui.close_menu();
                     }
                 })
