@@ -156,6 +156,7 @@ fn main() -> Result<(), Error> {
                             chip.should_beep = false
                         }
                     }
+                    egui_things.debug_send(&chip);
                     iter_done = true
                 }
             }
