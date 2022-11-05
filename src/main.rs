@@ -143,7 +143,7 @@ fn main() -> Result<(), Error> {
                         }
                     }
 
-                    //I only do this once in a frame because on low clock rates this shouldn't hurt 
+                    //I only do this once in a frame because on low clock rates this shouldn't hurt
                     if chip.stopped {
                         state = CpuState::Idle;
                         chip.stopped = false

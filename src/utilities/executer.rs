@@ -20,11 +20,11 @@ impl Cpu {
             0 => match nb.nn {
                 0xE0 => self.cls(),
                 0xEE => self.ret()?,
-                0xFB => self.scr(),          //scroll right by 4
-                0xFC => self.scl(),          //scroll left by 4
+                0xFB => self.scr(),  //scroll right by 4
+                0xFC => self.scl(),  //scroll left by 4
                 0xFD => self.exit(), //exit
-                0xFE => self.low(),          //lowres
-                0xFF => self.high(),          //highres
+                0xFE => self.low(),  //lowres
+                0xFF => self.high(), //highres
                 _ => match nb.y {
                     0xC => self.scd(nb.n), //scroll down by N
                     _ => (),

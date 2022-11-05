@@ -8,7 +8,7 @@ impl crate::utilities::cpu::Cpu {
     ///Clears the screen
     pub fn cls(&mut self) {
         for pixel in self.screen.iter_mut() {
-            *pixel = [false; 64]
+            *pixel = vec![false; if self.highres { 128 } else { 64 }]
         }
         self.redraw_needed = true
     }
