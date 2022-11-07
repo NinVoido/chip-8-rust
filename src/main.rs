@@ -108,7 +108,6 @@ fn main() -> Result<(), Error> {
         if let Some(clocks) = egui_things.get_clocks() {
             clocks_per_frame = clocks
         }
-        chip.update_keypad(&input);
         match state {
             CpuState::Idle => (),
             CpuState::Scan => {
@@ -128,6 +127,7 @@ fn main() -> Result<(), Error> {
                     iter_done = false
                 }
                 if !iter_done {
+                    chip.update_keypad(&input);
                     for _ in 1..=clocks_per_frame {
                         if let Err(error) = chip.execute() {
                             state = CpuState::Idle;
