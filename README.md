@@ -2,7 +2,7 @@
 Yes, this is another CHIP-8 emulator written in Rust. Goals:
 - [x] Implement all CHIP-8 instructions  and architecture
 - [x] Make a debug GUI
-- [ ] Implement all SCHIP-48 instructions and architecture
+- [x] Implement all SCHIP-48 instructions and architecture (searching for bugs ATM)
 
 Some screenshots of the emulator:
 ![ ](images/emu2.png  "Working emulator")

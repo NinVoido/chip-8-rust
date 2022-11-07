@@ -72,9 +72,8 @@ fn main() -> Result<(), Error> {
 
             if input.key_pressed(winit::event::VirtualKeyCode::Back) {
                 state = match state {
-                    CpuState::Exec => CpuState::Debg,
                     CpuState::Debg => CpuState::Exec,
-                    _ => CpuState::Idle,
+                    _ => CpuState::Debg,
                 };
                 egui_things.open_debug();
                 egui_things.debug_send(&chip);
@@ -103,7 +102,7 @@ fn main() -> Result<(), Error> {
                 egui_things.open_debug();
                 egui_things.debug_send(&chip);
             } else {
-                state = CpuState::Exec;
+                state = CpuState::Exec
             }
         }
         if let Some(clocks) = egui_things.get_clocks() {

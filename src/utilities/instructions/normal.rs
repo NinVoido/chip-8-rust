@@ -75,9 +75,9 @@ impl crate::utilities::cpu::Cpu {
     //TODO - make this behaviour changeable?
     pub fn add_index(&mut self, x: u8) {
         self.i += self.registers[x as usize] as u16;
-        //if self.i >= 0x1000 {
-        //  self.registers[15] = 1
-        //}
+        if self.i >= 0x1000 {
+            self.registers[15] = 1
+        }
     }
     ///FX33 instruction implementation
     ///Takes the value of register VX and converts it to three decimal digits, to store them after

@@ -53,12 +53,14 @@ impl crate::utilities::cpu::Cpu {
     ///00CN
     ///Scrolls display down by N lines
     pub fn scd(&mut self, n: u8) {
-        for i in 0..n as usize {
-            self.screen[i as usize] = vec![false; self.screen.len()]
-        }
-        for i in n as usize..self.screen.len() {
+        for i in (n as usize..self.screen.len()).rev() {
             self.screen[i] = self.screen[i - n as usize].clone()
         }
+        for i in 0..n as usize {
+            self.screen[i as usize] = vec![false; self.screen[0].len()]
+        }
+
+        self.redraw_needed = true;
     }
     ///00FB
     ///Scrolls display right by 4
@@ -71,6 +73,7 @@ impl crate::utilities::cpu::Cpu {
                 self.screen[row][col] = self.screen[row][col - 4]
             }
         }
+        self.redraw_needed = true
     }
     ///00FC
     ///Scrolls display left by 4
@@ -83,6 +86,7 @@ impl crate::utilities::cpu::Cpu {
                 self.screen[row][col] = self.screen[row][col + 4]
             }
         }
+        self.redraw_needed = true
     }
     ///DXYN
     ///This is updated version of DRW command, as it works differently on SCHIP-48
@@ -119,8 +123,8 @@ impl crate::utilities::cpu::Cpu {
         } else {
             for row in 0..16 {
                 let mut alr_changed = false;
+                let sprite_strip = ((sprite[row*2] as u16)<< 8) + sprite[row*2+1] as u16;
                 for i in (0..16).rev() {
-                    let sprite_strip: u16 = ((sprite[row] as u16) << 8) + sprite[row + 1] as u16;
                     let cords = (
                         (((15 - i) + self.registers[x as usize] as usize) % self.screen[0].len())
                             as u8,
