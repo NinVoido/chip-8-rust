@@ -29,6 +29,10 @@ impl crate::gui::gui_base::Gui {
                     if ui.button("Open timers").clicked() {
                         self.timers_open = true
                     }
+
+                    if ui.button("Open keypad").clicked() {
+                        self.keypad_open = true
+                    }
                 } else {
                     ui.label("No debug information available");
                 }
@@ -41,45 +45,38 @@ impl crate::gui::gui_base::Gui {
                     let table = egui_extras::TableBuilder::new(ui)
                         .striped(true)
                         .cell_layout(egui::Layout::left_to_right(egui::Align::Center))
-                        .column(egui_extras::Size::initial(60.0).at_least(40.0))
-                        .column(egui_extras::Size::initial(60.0).at_least(40.0))
-                        .resizable(true);
+                        .columns(egui_extras::Size::initial(20.0).at_least(20.0), 16);
 
-                    table
-                        .header(20.0, |mut header| {
-                            header.col(|ui| {
-                                ui.heading("Index");
-                            });
-                            header.col(|ui| {
-                                ui.heading("Value");
-                            });
-                        })
-                        .body(|mut body| {
-                            for row_index in 0..16 {
-                                body.row(20.0, |mut row| {
-                                    row.col(|ui| {
-                                        ui.centered_and_justified(|ui| {
-                                            ui.label(format!("{:X?}", row_index));
-                                        });
-                                    });
-                                    row.col(|ui| {
-                                        ui.centered_and_justified(|ui| {
-                                            if ui
-                                                .add(
-                                                    egui::DragValue::new(
-                                                        &mut dbginfo.registers[row_index as usize],
-                                                    )
-                                                    .clamp_range(0..=255),
-                                                )
-                                                .changed()
-                                            {
-                                                self.regs_changed = true;
-                                            }
-                                        });
+                    table.body(|mut body| {
+                        body.row(20.0, |mut row| {
+                            for col_ind in 0..16 {
+                                row.col(|ui| {
+                                    ui.centered_and_justified(|ui| {
+                                        ui.label(format!("{:X?}", col_ind));
                                     });
                                 });
                             }
                         });
+                        body.row(20.0, |mut row| {
+                            for col_ind in 0..16 {
+                                row.col(|ui| {
+                                    ui.centered_and_justified(|ui| {
+                                        if ui
+                                            .add(
+                                                egui::DragValue::new(
+                                                    &mut dbginfo.registers[col_ind as usize],
+                                                )
+                                                .clamp_range(0..=255),
+                                            )
+                                            .changed()
+                                        {
+                                            self.regs_changed = true;
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                    });
                 }
             });
 
@@ -142,5 +139,66 @@ impl crate::gui::gui_base::Gui {
                     }
                 }
             });
+
+        egui::Window::new("Keypad")
+            .open(&mut self.keypad_open)
+            .show(ctx, |ui| {
+                if let Some(dbginfo) = &mut self.debug_info {
+                    let table = egui_extras::TableBuilder::new(ui)
+                        .columns(egui_extras::Size::initial(40.0), 4);
+                    table.body(|mut body| {
+                        for row_index in 0..4 {
+                            body.row(40.0, |mut row| {
+                                row.col(|ui| {
+                                    if ui
+                                        .checkbox(
+                                            &mut dbginfo.keypad[KEYPAD[row_index * 4]],
+                                            format!("{:X?}", KEYPAD[row_index * 4]),
+                                        )
+                                        .changed()
+                                    {
+                                        self.keypad_changed = true
+                                    };
+                                });
+                                row.col(|ui| {
+                                    if ui
+                                        .checkbox(
+                                            &mut dbginfo.keypad[KEYPAD[row_index * 4 + 1]],
+                                            format!("{:X?}", KEYPAD[row_index * 4 + 1]),
+                                        )
+                                        .changed()
+                                    {
+                                        self.keypad_changed = true
+                                    };
+                                });
+                                row.col(|ui| {
+                                    if ui
+                                        .checkbox(
+                                            &mut dbginfo.keypad[KEYPAD[row_index * 4 + 2]],
+                                            format!("{:X?}", KEYPAD[row_index * 4 + 2]),
+                                        )
+                                        .changed()
+                                    {
+                                        self.keypad_changed = true
+                                    };
+                                });
+                                row.col(|ui| {
+                                    if ui
+                                        .checkbox(
+                                            &mut dbginfo.keypad[KEYPAD[row_index * 4 + 3]],
+                                            format!("{:X?}", KEYPAD[row_index * 4 + 3]),
+                                        )
+                                        .changed()
+                                    {
+                                        self.keypad_changed = true
+                                    };
+                                });
+                            });
+                        }
+                    });
+                }
+            });
     }
 }
+
+const KEYPAD: [usize; 16] = [1, 2, 3, 12, 4, 5, 6, 13, 7, 8, 9, 14, 10, 0, 11, 15];

@@ -1,5 +1,17 @@
-This is my attempt at writing a CHIP-8 emulator on Rust. Currently this is WIP; I will do my best to change that. Goals:
-1)Implement all instructions of original CHIP-8
-2)Create a load and debug menus using egui
-3)Have a working CHIP-8 emulator:)
-25/36 instructions are implemented yet. Mostly features that depend on external features are todo for now;
+## About this project
+Yes, this is another CHIP-8 emulator written in Rust. Goals:
+- [x] Implement all CHIP-8 instructions  and architecture
+- [x] Make a debug GUI
+- [ ] Implement all SCHIP-48 instructions and architecture
+
+Some screenshots of the emulator:
+![ ](images/emu2.png  "Working emulator")
+![ ](images/emu1.png  "Debug GUI")
+In the future I might implement XO-CHIP instructions and definitely want to rework some elements of GUI. The project is being actively developed, so follow for updates!
+## Installation
+```
+git clone https://github.com/NinVoido/chip-8-rust
+cd chip-8-rust
+cargo build --release
+```
+The binary will appear in target folder

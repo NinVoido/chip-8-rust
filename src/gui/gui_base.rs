@@ -1,5 +1,7 @@
 mod debug_menu;
 mod error_menus;
+mod settings;
+
 use egui::{ClippedPrimitive, Context, TexturesDelta};
 use egui_wgpu::renderer::{RenderPass, ScreenDescriptor};
 use pixels::{wgpu, PixelsContext};
@@ -52,8 +54,18 @@ struct Gui {
     debug_start: bool,
     ///If timer debug window is open
     timers_open: bool,
+    ///If keypad menu is open
+    keypad_open: bool,
+    ///If user changed keypad in debug gui
+    keypad_changed: bool,
+    ///Clock rate of CHIP-8
+    clocks_per_fr: u16,
+    ///If clock rate was changed
+    clock_changed: bool,
+    ///Is the settings window open
+    sett_open: bool,
 }
-
+///Debug information needed for debug gui (fields resemble corresponding fields of CPU)
 struct DebugInfo {
     registers: [u8; 16],
     pc: u16,
@@ -62,6 +74,7 @@ struct DebugInfo {
     last_cmd: (u8, u8),
     st: u8,
     dt: u8,
+    keypad: [bool; 16],
 }
 
 impl Framework {
@@ -130,9 +143,10 @@ impl Framework {
         self.gui.rom_choosed = false;
         self.gui.debug_start = false;
     }
-    ///Get new registers from GUI
-    pub fn get_info(&mut self) -> (Option<[u8; 16]>, Option<(u8, u8)>) {
-        let mut result: (Option<[u8; 16]>, Option<(u8, u8)>) = (None, None);
+    ///Get new info from GUI
+    pub fn get_info(&mut self) -> (Option<[u8; 16]>, Option<(u8, u8)>, Option<[bool; 16]>) {
+        let mut result: (Option<[u8; 16]>, Option<(u8, u8)>, Option<[bool; 16]>) =
+            (None, None, None);
         if let Some(dbginfo) = &self.gui.debug_info {
             if self.gui.regs_changed {
                 result.0 = Some(dbginfo.registers);
@@ -143,8 +157,22 @@ impl Framework {
                 result.1 = Some((dbginfo.dt, dbginfo.st));
                 self.gui.timer_changed = false
             }
+
+            if self.gui.keypad_changed {
+                result.2 = Some(dbginfo.keypad);
+                self.gui.keypad_changed = false
+            }
         }
         return result;
+    }
+    ///Send clocks per frame from gui
+    pub fn get_clocks(&mut self) -> Option<u16> {
+        if self.gui.clock_changed {
+            self.gui.clock_changed = false;
+            return Some(self.gui.clocks_per_fr);
+        } else {
+            return None;
+        }
     }
     ///Transports error from main to error gui
     pub fn throw_error(&mut self, error: String) {
@@ -165,6 +193,7 @@ impl Framework {
             cmd: (chip.ram[chip.pc as usize], chip.ram[chip.pc as usize + 1]),
             st: chip.st,
             dt: chip.dt,
+            keypad: chip.keypad,
         });
         //        println!("{:X?}|{:X?}", chip.ram[chip.pc as usize], chip.ram[chip.pc as usize + 1])
     }
@@ -210,6 +239,7 @@ impl Framework {
             self.gui.ui(egui_ctx);
             self.gui.debug_ui(egui_ctx);
             self.gui.error_menus(egui_ctx);
+            self.gui.settings(egui_ctx);
         });
 
         self.textures.append(output.textures_delta);
@@ -236,6 +266,11 @@ impl Gui {
             debug_start: false,
             timers_open: false,
             timer_changed: false,
+            keypad_open: false,
+            keypad_changed: false,
+            clocks_per_fr: 10,
+            clock_changed: false,
+            sett_open: false,
         }
     }
     ///Creates main UI
@@ -252,6 +287,13 @@ impl Gui {
                 ui.menu_button("Debug", |ui| {
                     if ui.button("Open menu").clicked() {
                         self.debug_open = true;
+                        ui.close_menu();
+                    }
+                });
+
+                ui.menu_button("Edit", |ui| {
+                    if ui.button("Settings").clicked() {
+                        self.sett_open = true;
                         ui.close_menu();
                     }
                 })
