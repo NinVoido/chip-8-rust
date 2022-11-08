@@ -1,4 +1,6 @@
+//!Module for settings window
 impl super::Gui {
+    ///Creates an settings window
     pub(super) fn settings(&mut self, ctx: &egui::Context) {
         egui::Window::new("Settings")
             .open(&mut self.sett_open)

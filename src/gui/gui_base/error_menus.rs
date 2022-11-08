@@ -1,4 +1,4 @@
-//!Module for creating error messages
+//!Module for creating error messages\
 //!Error handling itself is done in main
 impl crate::gui::gui_base::Gui {
     ///Creates an error message window

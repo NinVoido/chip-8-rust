@@ -1,26 +1,27 @@
+//!Arithmetic (8___) instructions are implemented here
 impl crate::utilities::cpu::Cpu {
-    ///8XY0 instruction implementation
+    ///8XY0\
     ///Sets register VX to the value of VY
     pub fn ld_reg(&mut self, x: u8, y: u8) {
         self.registers[x as usize] = self.registers[y as usize]
     }
-    ///8XY1 instruction implementation
+    ///8XY1\
     ///Sets register VX to the VX | VY
     pub fn or(&mut self, x: u8, y: u8) {
         self.registers[x as usize] = self.registers[x as usize] | self.registers[y as usize];
     }
-    ///8XY2 instruction implementation
+    ///8XY2\
     ///Sets register VX to the VX && VY
     pub fn and(&mut self, x: u8, y: u8) {
         self.registers[x as usize] = self.registers[x as usize] & self.registers[y as usize];
     }
-    ///8XY3 instruction implementation
+    ///8XY3\
     ///Sets register VX to the VX ^ VY
     pub fn xor(&mut self, x: u8, y: u8) {
         self.registers[x as usize] = self.registers[x as usize] ^ self.registers[y as usize]
     }
-    ///8XY4 instruction implementation
-    ///Adds value of register VY to the VX
+    ///8XY4\
+    ///Adds value of register VY to the VX\
     ///Sets VF flag to 1 if the addition overflows 8 bits, to 0 if doesn't
     pub fn add_arithmetic(&mut self, x: u8, y: u8) {
         let temp =
@@ -32,7 +33,7 @@ impl crate::utilities::cpu::Cpu {
         }
         self.registers[x as usize] = temp[1];
     }
-    ///8XY5 instruction implementation
+    ///8XY5\
     ///Substracts value of register VY from VX and puts the result into VX
     pub fn sub(&mut self, x: u8, y: u8) {
         if self.registers[x as usize] < self.registers[y as usize] {
@@ -43,12 +44,8 @@ impl crate::utilities::cpu::Cpu {
             self.registers[x as usize] = self.registers[x as usize] - self.registers[y as usize];
             self.registers[15] = 1
         }
-        //IDK how to properly handle this, so i guess I'll just use to_be_bytes
-        /*self.registers[x as usize] = (self.registers[x as usize] as i16
-        - self.registers[y as usize] as i16)
-        .to_be_bytes()[1];*/
     }
-    ///8XY7 instruction implementation
+    ///8XY7\
     ///Substracts value of register VX from VY and puts the result into VX
     pub fn subn(&mut self, x: u8, y: u8) {
         if self.registers[y as usize] < self.registers[x as usize] {
@@ -59,19 +56,14 @@ impl crate::utilities::cpu::Cpu {
             self.registers[x as usize] = self.registers[y as usize] - self.registers[x as usize];
             self.registers[15] = 1
         }
-        //IDK how to properly handle this, so i guess I'll just use to_be_bytes
-        /*self.registers[x as usize] = (self.registers[y as usize] as i16
-        - self.registers[x as usize] as i16)
-        .to_be_bytes()[1];*/
     }
-    ///Shr&Shl are done COSMAC-VIP way
-    ///8XY6
+    ///8XY6\
     ///If least-significant bit of Vx is 1, VF is set to 1, otherwise 0. Then Vx>>=1
     pub fn shr(&mut self, x: u8, y: u8) {
         self.registers[15] = self.registers[y as usize] & 0b1;
         self.registers[x as usize] = self.registers[x as usize] >> 1;
     }
-    ///8XYE
+    ///8XYE\
     ///If most-significant bit of Vx is 1, VF is set to 1, otherwise 0. Then Vx<<=1
     pub fn shl(&mut self, x: u8, y: u8) {
         self.registers[15] = self.registers[y as usize] >> 7;

@@ -1,5 +1,10 @@
+//!Executing logic is written here
 use crate::utilities::cpu::Cpu;
 impl Cpu {
+    ///Fetches one instruction from memory\
+    ///Increments program counter\
+    ///Decodes instruction and calls it\
+    ///Toggles beeping if st was incremented
     pub fn execute(&mut self) -> Result<(), &'static str> {
         let instruction =
             ((self.ram[self.pc as usize] as u16) << 8) + self.ram[self.pc as usize + 1] as u16;
@@ -11,10 +16,6 @@ impl Cpu {
             n: (instruction & 0x000f) as u8,
             id: ((instruction & 0xf000) >> 12) as u8,
         };
-        //TODO - is match temporary? I hope so. I will try to find a way to impl this using
-        //function pointers, but that seems pretty sophisticated, because my instructions are
-        //struct methods and giving a function pointer to them requires already given Cpu instance
-        //and arguments\
         self.pc += 2;
         match nb.id {
             0 => match nb.nn {
@@ -86,29 +87,39 @@ impl Cpu {
 }
 ///Private struct that represent various components of the instruction
 struct Nibbles {
-    ///Lowest 8 bits of the instruction
+    ///Lowest 8 bits of the instruction\
     ///instruction & 0x00ff
     nn: u8,
-    ///Lowest 12 bits of the instruction
+    ///Lowest 12 bits of the instruction\
     ///instruction & 0x0fff
     nnn: u16,
-    ///Lower 4 bits of the high byte of the instruction
+    ///Lower 4 bits of the high byte of the instruction\
     ///(instruction & 0x0f00) >> 8
     x: u8,
-    ///Upper 4 bits of the low byte of the instruction
+    ///Upper 4 bits of the low byte of the instruction\
     ///(instruction & 0x00f0) >> 4
     y: u8,
-    ///Lowest 4 bits of the instruction
+    ///Lowest 4 bits of the instruction\
     ///instruction & 0x000f
     n: u8,
-    ///Instruction identifier
+    ///Instruction identifier\
     ///(instruction & 0xf000) >> 12
     id: u8,
 }
+
+///Current state of CPU
 #[derive(Copy, Clone)]
 pub enum CpuState {
+    ///Nothing happens with cpu
     Idle,
+    ///Normal executing logic is done, read more in documentation of FPS constant in main
     Exec,
+    ///Program is in debug state\
+    ///Instuction is executed only on demand\
+    ///CHIP syncs with debug GUI
     Debg,
+    ///State after scan key instruction\
+    ///No instructions are executed\
+    ///Program waits for one key on hexpad to be pressed, then resumes the executing
     Scan,
 }

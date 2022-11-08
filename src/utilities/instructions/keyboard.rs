@@ -1,5 +1,6 @@
+//!Instructions that do something with hexpad are implemented here
 impl crate::utilities::cpu::Cpu {
-    ///EX9E instruction implementation
+    ///EX9E\
     ///Skips next instruction if certain key is pressed
     pub fn skp(&mut self, x: u8) {
         if self.registers[x as usize] <= 0xf {
@@ -8,7 +9,7 @@ impl crate::utilities::cpu::Cpu {
             }
         }
     }
-    ///EXA1 instruction implementation
+    ///EXA1\
     ///Skips next instruction if certain key is NOT pressed
     pub fn sknp(&mut self, x: u8) {
         if self.registers[x as usize] <= 0xf {
@@ -17,18 +18,19 @@ impl crate::utilities::cpu::Cpu {
             }
         }
     }
-    ///FX0A instruction implementation
+    ///FX0A\
     ///Waits for a key to be pressed, than puts hex value of pressed key into register VX
     pub fn ld_keyboard(&mut self, x: u8) {
         self.scan_info = (true, x)
     }
-    ///Puts scanned value into register
+    ///Puts scanned value into register (not an instruction)
     pub fn put_scanned(&mut self, chr: char) {
         self.registers[self.scan_info.1 as usize] = to_hex(chr);
         self.scan_info.0 = false
     }
 }
 
+///Makes a hex out of char on hexpad
 fn to_hex(chr: char) -> u8 {
     match chr.to_ascii_lowercase() {
         'x' => 0,

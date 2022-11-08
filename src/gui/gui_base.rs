@@ -1,3 +1,4 @@
+//!Main GUI architecture, like structs and their methods needed for rendering/creating/using
 mod debug_menu;
 mod error_menus;
 mod settings;
@@ -71,6 +72,7 @@ struct DebugInfo {
     pc: u16,
     stack: crate::utilities::cpu::Stack,
     cmd: (u8, u8),
+    ///After executing one command cmd value is assigned here
     last_cmd: (u8, u8),
     st: u8,
     dt: u8,
@@ -124,9 +126,10 @@ impl Framework {
     pub fn scale_factor(&mut self, scale_factor: f64) {
         self.screen_descriptor.pixels_per_point = scale_factor as f32;
     }
-    ///Transports rom path from egui to Main
-    ///Some if path was chosen and run button was pressed
-    ///None if else
+    ///Transports rom path from egui to Main\
+    ///Some if path was chosen and run button was pressed\
+    ///None if else\
+    ///For example if "debug rom" button was pressed, function will return Some(true, {path})
     pub fn rom_started(&self) -> Option<(bool, String)> {
         if let Some(path) = &self.gui.picked_path {
             if self.gui.debug_start {
@@ -143,7 +146,8 @@ impl Framework {
         self.gui.rom_choosed = false;
         self.gui.debug_start = false;
     }
-    ///Get new info from GUI
+    ///Sends changes from debug GUI
+    ///If anything was changed in debug GUI, corresponding field will return Some({new_value})
     pub fn get_info(&mut self) -> (Option<[u8; 16]>, Option<(u8, u8)>, Option<[bool; 16]>) {
         let mut result: (Option<[u8; 16]>, Option<(u8, u8)>, Option<[bool; 16]>) =
             (None, None, None);
@@ -165,7 +169,7 @@ impl Framework {
         }
         return result;
     }
-    ///Send clocks per frame from gui
+    ///Send clocks_per_frame if it was changed in debug GUI
     pub fn get_clocks(&mut self) -> Option<u16> {
         if self.gui.clock_changed {
             self.gui.clock_changed = false;
@@ -174,12 +178,12 @@ impl Framework {
             return None;
         }
     }
-    ///Transports error from main to error gui
+    ///Opens an error window with error message
     pub fn throw_error(&mut self, error: String) {
         self.gui.error_occured = true;
         self.gui.error = Some(error)
     }
-    ///Gives debug info to the gui
+    ///Gives debug info to the GUI from CHIP-8
     pub fn debug_send(&mut self, chip: &Cpu) {
         self.gui.debug_info = Some(DebugInfo {
             registers: chip.registers,
@@ -197,7 +201,7 @@ impl Framework {
         });
         //        println!("{:X?}|{:X?}", chip.ram[chip.pc as usize], chip.ram[chip.pc as usize + 1])
     }
-    ///Tells egui to open debug menu
+    ///Opens debug window
     pub fn open_debug(&mut self) {
         self.gui.debug_open = true
     }

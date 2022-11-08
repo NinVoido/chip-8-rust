@@ -1,3 +1,5 @@
+//!Keyboard handling functions for cpu are written here\
+//!Instructions related to keyboard are, however, written in instructions/keyboard.rs
 use winit::event::VirtualKeyCode::*;
 impl super::cpu::Cpu {
     ///Update Chip's keypad if any of keypad keys were pressed

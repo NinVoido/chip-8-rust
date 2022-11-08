@@ -1,3 +1,4 @@
+//!ROM loading is written here
 impl crate::utilities::cpu::Cpu {
     ///Method for loading a ROM into RAM
     ///Returns an error if ROM is bigger than available 3.5Kb of RAM or if std::fs threw an error

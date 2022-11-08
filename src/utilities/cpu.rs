@@ -1,12 +1,12 @@
-///Main CPU struct
-///
+//!Main CPU architecture and methods are written here.
+///Main CPU struct\
 ///RAM, stack, etc. are stored in this struct as pub fields.
 pub struct Cpu {
     ///4Kb RAM accesable by CPU
     pub ram: [u8; 4096],
     ///Index register
     pub i: u16,
-    ///CPU's registers
+    ///CPU's registers\
     ///Worth mentioning that VF (16th register) should never be used in programs,
     ///as it is considered as a flag by some instructions
     pub registers: [u8; 16],
@@ -21,8 +21,8 @@ pub struct Cpu {
     ///Flag used while rendering, turns true if VF is set to 1 after drawing a sprite or after
     ///clearing the screen
     pub redraw_needed: bool,
-    ///Frame buffer of CHIP-8 CPU
-    ///If redraw_needed flag is up contents of this fb are written to main frame provided by pixels
+    ///Frame buffer of CHIP-8 CPU\
+    ///If redraw_needed flag is up, contents of this fb are written to main frame provided by pixels
     pub screen: Vec<Vec<bool>>,
     ///Flag needed for key scan instrucion implementation
     pub scan_info: (bool, u8),
@@ -46,7 +46,7 @@ pub struct Stack {
     pub sp: u8,
 }
 impl Stack {
-    ///Push implementation for stack struct
+    ///Push implementation for stack struct\
     ///Returns stack overflow if stack pointer is already 16
     pub fn push(&mut self, subroutine_adress: u16) -> Result<(), &'static str> {
         if self.sp == 16 {
@@ -63,7 +63,7 @@ impl Stack {
             sp: 0,
         }
     }
-    ///Pop implementation for stack struct
+    ///Pop implementation for stack struct\
     ///Returns an error if tries popping from empty stack
     pub fn pop(&mut self) -> Result<(), &'static str> {
         if self.sp == 0 {
@@ -73,17 +73,11 @@ impl Stack {
         Ok(())
     }
 }
-/*todo!("
-1) init a CPU (Cpu::new()), load fonts to ram, set default values
-2)Wait for user tio choose a file, settings(Instruction behaviors, clock rate, etc.), press run button
-3)Load ROM into ram
-4)Launch an executing loop
-5)Debug menu, etc");*/
 
 impl Cpu {
-    ///Function creates an empty chip-8 CPU structure
-    ///Fonts are put into RAM
-    ///Program counter is set 512 to match the first instruction adress
+    ///Function creates an empty chip-8 CPU structure\
+    ///Fonts are put into RAM\
+    ///Program counter is set 512 to match the first instruction adress\
     ///Everything else is left zero
     pub fn new() -> Cpu {
         let mut chip = Cpu {

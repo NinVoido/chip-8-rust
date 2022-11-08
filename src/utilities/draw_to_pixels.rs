@@ -1,4 +1,7 @@
+//!Cpu method for interacting with pixels
 impl super::cpu::Cpu {
+    ///Draws contents of CHIP's frame buffer to frame buffer provided by pixels\
+    ///Scales if CHIP is in low-res mode
     pub fn draw_to_pixels(&mut self, pixels: &mut [u8]) {
         for (i, pixel) in pixels.chunks_exact_mut(4).enumerate() {
             if self.highres {

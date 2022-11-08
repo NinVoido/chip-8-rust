@@ -15,9 +15,25 @@ use winit::{
 };
 use winit_input_helper::{TextChar, WinitInputHelper};
 
+///Width of pixel buffer\
+///In case of SCHIP-48 this is its width in high-res mode
 const WIDTH: u32 = 128;
+
+///Height of pixel buffer\
+///In case of SCHIP-48 this is its height in high-res mode
 const HEIGHT: u32 = 64;
+///Duration of one execution cycle\
+///Execution cycle consists of:\
+///>updating the update_keypad\
+///>executing clocks_per_frame instructions\
+///>Handling errors and other events\
+///>Decreasing timers\
+///This cycle will execute **only** once per given duration\
+///Currently this is set to the approximate length of one frame at 60 FPS
 const FPS: std::time::Duration = std::time::Duration::from_millis(16);
+
+///Most important part of this function is the winit event loop\
+///Basically it handles everything, from toggling debug to executing - everything is done there
 fn main() -> Result<(), Error> {
     let event_loop = EventLoop::new();
     let mut input = WinitInputHelper::new();

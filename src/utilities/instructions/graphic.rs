@@ -1,10 +1,11 @@
+//!Instructions that work with screen are implemented here
 impl crate::utilities::cpu::Cpu {
-    ///FX29 instruction implementation
+    ///FX29\
     ///Sets index register to the address of hex character resembling value in register VX
     pub fn ld_index_font(&mut self, x: u8) {
         self.i = 0x50 + 5 * self.registers[x as usize] as u16
     }
-    ///00E0 instruction implementation
+    ///00E0\
     ///Clears the screen
     pub fn cls(&mut self) {
         for pixel in self.screen.iter_mut() {
@@ -12,7 +13,7 @@ impl crate::utilities::cpu::Cpu {
         }
         self.redraw_needed = true
     }
-    ///DXYN instruction implementation
+    ///DXYN\
     ///Draws a n-byte sprite at VX, VY
     pub fn drw(&mut self, vx: u8, vy: u8, n: u8) {
         //Defaulting VF to 0
